@@ -5,7 +5,7 @@ VisualStudioVersion = 17.10.35004.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProbeApp", "ProbeApp\ProbeApp.csproj", "{86D37D91-390E-4A13-BF84-D08BC3164B8B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SapmleApplication", "EnumSapmleApplication\SapmleApplication.csproj", "{7ABBDD31-2D48-4BEB-ADB5-BF50051F4CE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SapmleApplication", "EnumSapmleApplication\SapmleApplication.csproj", "{7ABBDD31-2D48-4BEB-ADB5-BF50051F4CE7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

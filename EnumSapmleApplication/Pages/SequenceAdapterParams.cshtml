@@ -1,0 +1,11 @@
+﻿@page
+@model SapmleApplication.Pages.SequenceAdapterParamsModel
+@{
+    Layout = null;
+}
+
+<form asp-page="SequienceAdapterParams">
+    <input asp-for="Input.Stages[0].Count" />
+    <input asp-for="Input.Stages[0].Delay" />
+    <button type="submit" >Submit</button>
+</form>
