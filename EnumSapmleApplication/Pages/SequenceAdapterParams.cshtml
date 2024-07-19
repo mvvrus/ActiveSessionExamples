@@ -1,11 +1,15 @@
-﻿@page
+﻿@page "{mode}"
 @model SapmleApplication.Pages.SequenceAdapterParamsModel
 @{
     Layout = null;
 }
-
-<form asp-page="SequienceAdapterParams">
-    <input asp-for="Input.Stages[0].Count" />
-    <input asp-for="Input.Stages[0].Delay" />
-    <button type="submit" >Submit</button>
+<script>var stages = 0;</script>
+<form asp-page="/SequenceAdapterParams" asp-route-mode="sync">
+    <div id="Input.Stages[0]">
+        <input asp-for="Input.Stages[0].Count" />
+        <input asp-for="Input.Stages[0].Delay" />
+        <select asp-for="Input.Stages[0].Scale" asp-items="Model.Units"></select>
+    </div>
+    <button type="button" onclick="alert(++stages);">+</button>
+    <button type="submit">Submit</button>
 </form>
