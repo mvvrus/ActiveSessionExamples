@@ -1,15 +1,81 @@
 ﻿@page "{mode}"
 @model SapmleApplication.Pages.SequenceAdapterParamsModel
 @{
-    Layout = null;
+    Layout = "_Layout";
+    ViewData["Title"]="Sequence params";
+    String stage_prefix = "Stage_";
+    String stage0id = stage_prefix+"0";
+    String stagesid = "stage_table";
+    Int32 bind_count = (Math.Max(Model.Input?.Stages?.Count ?? 1, 1));
 }
-<script>var stages = 0;</script>
 <form asp-page="/SequenceAdapterParams" asp-route-mode="sync">
-    <div id="Input.Stages[0]">
-        <input asp-for="Input.Stages[0].Count" />
-        <input asp-for="Input.Stages[0].Delay" />
-        <select asp-for="Input.Stages[0].Scale" asp-items="Model.Units"></select>
+    Enumeration stages:
+    <div id="@stagesid">
+        @for (int row=0; row<bind_count; row++) {
+        <div id="@(stage_prefix+row.ToString())">
+            @row:
+                <label asp-for="Input!.Stages![row].Count"></label>
+                <input asp-for="Input!.Stages![row].Count" class="column" />
+                <label asp-for="Input!.Stages![row].Delay"></label>
+                <input asp-for="Input!.Stages![row].Delay" class="column" />
+                <label asp-for="Input!.Stages![row].Scale"></label>
+                <select asp-for="Input!.Stages![row].Scale" asp-items="Model.Units" class="column"></select>
+        </div>
+        }
     </div>
-    <button type="button" onclick="alert(++stages);">+</button>
+    <div>
+        <button type="button" onclick="addStage()">+</button>
+        <button type="button" onclick="removeStage()">-</button>
+    </div>
     <button type="submit">Submit</button>
+    <div>
+        @{
+            List<String>? errors = Model.CustomDisplayValidationErrors();
+            if(errors!=null) {
+                    <ul>
+                    @foreach(String error in errors) {
+                        <li>@error</li>
+                }
+                    </ul>
+            }
+        }
+    </div>
 </form>
+
+@section Head{
+    <style>
+        .column {width:5em}
+    </style>
+    <script>
+        var max_stage = @(bind_count-1);
+
+        function addStage() {
+            max_stage++;
+            let stages_div = document.getElementById("@stagesid");
+            let new_stage = stages_div.querySelector("#@stage0id").cloneNode(true);
+            new_stage.id = new_stage.id.replaceAll("0", max_stage.toString());
+            for (let node of new_stage.childNodes) {
+                if (node.nodeType == 1/*ELEMENT_NODE*/) {
+                    if (node.id != undefined) node.id = node.id.replaceAll("0", max_stage.toString());
+                    if (node.name != undefined) node.name = node.name.replaceAll("0", max_stage.toString());
+                    if (node.hasAttribute("for")) node.setAttribute("for",node.getAttribute("for").replaceAll("0", max_stage.toString()));
+                    if (node.tagName.toUpperCase() == "INPUT") node.value = "";
+                }
+                else if (node.nodeType == 3/*TEXT_NODE*/) {
+                    node.nodeValue = node.nodeValue.replaceAll("0", max_stage.toString());
+                    console.log("Text node");
+                }
+            }
+            stages_div.append(new_stage);
+        }
+
+        function removeStage() {
+            if (max_stage <= 0) return;
+            let stages_div = document.getElementById("@stagesid");
+            let to_remove = stages_div.querySelector("#@(stage_prefix)" + max_stage.toString());
+            stages_div.removeChild(to_remove);
+            max_stage--;
+        }
+
+    </script>
+}

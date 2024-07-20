@@ -1,19 +1,13 @@
 ﻿@page
 @model EnumSapmleApplication.Pages.IndexModel
 @{
-    //Layout = null;
+    Layout = "_Layout";
+    ViewData["Title"]="ActiveSession samples";
 }
-<html>
-    <head>
-        <title>ActiveSession usage samples</title>
-    </head>
-    <body>
-        <h1>Sample pages:</h1>
-        <div>
-            <ul>
-                <li><a asp-page="/SequenceAdapterParams" asp-route-mode="sync">EnumAdapter sample</a></li>
-            </ul>
-        </div>
+    <h1>Sample pages:</h1>
+    <div>
+        <ul>
+            <li><a asp-page="/SequenceAdapterParams" asp-route-mode="sync">EnumAdapter sample</a></li>
+        </ul>
+    </div>
     
-    </body>
-</html>
