@@ -6,4 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MVVrus.AspNetCore.ActiveSession" Version="0.9.1" />
+  </ItemGroup>
+
 </Project>
