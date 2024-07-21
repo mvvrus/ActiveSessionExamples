@@ -1,10 +1,21 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
+using MVVrus.AspNetCore.ActiveSession;
+using MVVrus.AspNetCore.ActiveSession.StdRunner;
+using SapmleApplication.Models;
 
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddRazorPages().AddViewOptions(options=>options.HtmlHelperOptions.FormInputRenderMode=FormInputRenderMode.AlwaysUseCurrentCulture);
-var app = builder.Build();
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-//app.MapGet("/", () => "Hello World!");
+builder.Services.AddMemoryCache();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
+builder.Services.AddEnumAdapter<SimSeqData>();
+
+builder.Services.AddRazorPages().AddViewOptions(options => options.HtmlHelperOptions.FormInputRenderMode=FormInputRenderMode.AlwaysUseCurrentCulture);
+
+WebApplication app = builder.Build();
+
+app.UseSession();
+app.UseActiveSessions();
 app.MapRazorPages();
 
 app.Run();

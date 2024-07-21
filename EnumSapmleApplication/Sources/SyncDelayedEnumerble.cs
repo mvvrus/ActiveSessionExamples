@@ -8,7 +8,7 @@ namespace SapmleApplication.Sources
         Int32 _currentStep = -1;
         readonly Func<Int32, T> _stepResultFunc;
 
-        protected SyncDelayedEnumerble(SimStage[] stages, Func<Int32,T> step_result_func) : base(stages)
+        public SyncDelayedEnumerble(SimStage[] stages, Func<Int32,T> step_result_func) : base(stages)
         {
             _stepResultFunc= step_result_func;
         }

@@ -2,7 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using MVVrus.AspNetCore.ActiveSession;
+using MVVrus.AspNetCore.ActiveSession.StdRunner;
 using SapmleApplication.Models;
+using SapmleApplication.Sources;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
@@ -24,8 +27,31 @@ namespace SapmleApplication.Pages
         {
         }
 
-        public void OnPost(String mode) 
+        public ActionResult OnPost(String mode) 
         {
+            if(ModelState.IsValid) {
+                SequenceParams seq_params=MakeSequenceParams();
+                IEnumerable<SimSeqData> source=new SyncDelayedEnumerble<SimSeqData>(seq_params.Stages, new SimSeqDataProducer().Sample);
+                Int32 number;
+                IRunner runner;
+                (runner, number)= HttpContext.GetActiveSession().CreateSequenceRunner(source,HttpContext);
+                runner.ExtraData=seq_params;
+                return RedirectToPage("SequenceShowResults", new { runner_number = number });
+            }
+            return Page();
+        }
+
+        private SequenceParams MakeSequenceParams()
+        {
+            SequenceParams result = new SequenceParams(Input!.Stages!.Count);
+            int ndx = 0;
+            foreach(BindStage stage in Input!.Stages!) {
+                result.Stages[ndx++]= new SimStage { 
+                    Count=stage.Count!.Value, 
+                    Delay=TimeSpan.FromMilliseconds(stage.Delay!.Value*stage.Scale) };
+
+            }
+            return result;
         }
 
         public List<String>? CustomDisplayValidationErrors()
