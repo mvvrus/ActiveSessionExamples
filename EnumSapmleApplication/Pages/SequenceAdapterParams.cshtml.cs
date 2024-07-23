@@ -32,11 +32,11 @@ namespace SapmleApplication.Pages
             if(ModelState.IsValid) {
                 SequenceParams seq_params=MakeSequenceParams();
                 IEnumerable<SimSeqData> source=new SyncDelayedEnumerble<SimSeqData>(seq_params.Stages, new SimSeqDataProducer().Sample);
-                Int32 number;
+                RunnerKey key;
                 IRunner runner;
-                (runner, number)= HttpContext.GetActiveSession().CreateSequenceRunner(source,HttpContext);
+                (runner, key)= HttpContext.GetActiveSession().CreateSequenceRunner(source,HttpContext);
                 runner.ExtraData=seq_params;
-                return RedirectToPage("SequenceShowResults", new { runner_number = number });
+                return RedirectToPage("SequenceShowResults", new { key });
             }
             return Page();
         }
