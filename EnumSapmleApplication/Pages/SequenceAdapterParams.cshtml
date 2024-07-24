@@ -7,13 +7,14 @@
     String stage0id = stage_prefix+"0";
     String stagesid = "stage_table";
     Int32 bind_count = (Math.Max(Model.Input?.Stages?.Count ?? 1, 1));
+    //"font-size:1.2rem;font-weight:600"
 }
-<form asp-page="/SequenceAdapterParams" asp-route-mode="sync">
-    Enumeration stages:
-    <div id="@stagesid">
+<form asp-page="/SequenceAdapterParams" asp-route-mode="sync" style="padding:10px; width:max-content">
+    <h3 style="margin-bottom:1px">Enumeration stages:</h3>
+    <div id="@stagesid" style="margin:5px; margin-left:10px; border-style:solid; border-width:thin; padding:2px">
         @for (int row=0; row<bind_count; row++) {
-        <div id="@(stage_prefix+row.ToString())">
-            @row:
+            <div id="@(stage_prefix+row.ToString())" style="margin-top: 2px; margin-bottom: 2px;">
+                @row:
                 <label asp-for="Input!.Stages![row].Count"></label>
                 <input asp-for="Input!.Stages![row].Count" class="column" />
                 <label asp-for="Input!.Stages![row].Delay"></label>
@@ -23,16 +24,20 @@
         </div>
         }
     </div>
-    <div>
-        <button type="button" onclick="addStage()">+</button>
-        <button type="button" onclick="removeStage()">-</button>
+    <div style="margin-left:10px;position:relative; text-align:center; height:1.6rem">
+        <button type="button" id="add_stage_btn" onclick="addStage()" style="position:absolute;left:0px">+</button>
+        &lt;-   Add or remove stage   -&gt;
+        <button type="button" id="rem_stage_btn" onclick="removeStage()" style="position:absolute;right:5px" @(bind_count<2?"disabled":"")>-</button>
     </div>
-    <button type="submit">Submit</button>
     <div>
+        <button type="submit">Submit</button>
+    </div>
+    <div style="margin:5px">
         @{
             List<String>? errors = Model.CustomDisplayValidationErrors();
             if(errors!=null) {
-                    <ul>
+                <h3>Input validation errors found:</h3>
+                <ul style="color:red">
                     @foreach(String error in errors) {
                         <li>@error</li>
                 }
@@ -50,7 +55,9 @@
         var max_stage = @(bind_count-1);
 
         function addStage() {
+            
             max_stage++;
+            rem_stage_btn.removeAttribute("disabled");
             let stages_div = document.getElementById("@stagesid");
             let new_stage = stages_div.querySelector("#@stage0id").cloneNode(true);
             new_stage.id = new_stage.id.replaceAll("0", max_stage.toString());
@@ -75,6 +82,7 @@
             let to_remove = stages_div.querySelector("#@(stage_prefix)" + max_stage.toString());
             stages_div.removeChild(to_remove);
             max_stage--;
+            if (max_stage <= 0) rem_stage_btn.setAttribute("disabled","");
         }
 
     </script>

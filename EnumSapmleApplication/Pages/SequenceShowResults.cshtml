@@ -4,3 +4,26 @@
     Layout = "_Layout";
     ViewData["Title"]="Sequence runner results";
 }
+<div>
+    <div id="left_pane" style="width:30%;display:inline-block">
+        @if(Model.Params!=null) {
+            <div>Operation parameters:</div>
+            <div>
+                <table>
+                    <tr><th>Iteration count:</th><th>Interval(ms):</th><th>Ends at position:</th></tr>
+                    @if (Model.Params.Stages != null) {
+                        int end_pos = 0;
+                        @foreach (SimStage stage in Model.Params.Stages) {
+                            <tr><td>@stage.Count</td><td>@stage.Delay</td><td>@(end_pos+=stage.Count)</td></tr>
+                        }
+                    }
+                </table>
+             </div>
+        }
+    </div>
+    <div style="display:inline-block;width:unset">
+        <div>
+            Operation status: <span id="status_span">@Model.StatusMessage</span>
+        </div>
+    </div>
+</div>

@@ -23,6 +23,12 @@ namespace SapmleApplication.Pages
             new SelectListItem("msec","1")
         };
 
+        public SequenceAdapterParamsModel()
+        {
+            Input=new BindParams();
+            Input.Stages=new List<BindStage> { new BindStage { Delay=0, Scale=1000 } };
+        }
+
         public void OnGet(String mode)
         {
         }
