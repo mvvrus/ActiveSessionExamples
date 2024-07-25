@@ -21,17 +21,19 @@ namespace SapmleApplication.Pages
                 StatusMessage="Active session is unavailable.";
             }
             else {
-                var runner = active_session.GetSequenceRunner<SimSeqData>(key, HttpContext);
-                if(runner ==null) {
-                    if(key.Generation!=active_session.Generation) StatusMessage="Active session was replaced.";
-                    else StatusMessage="Cannot contact a runner for the operation.";
-                }
+                if(key.Generation!=active_session.Generation) StatusMessage="Active session was replaced.";
                 else {
-                    StatusMessage="Starting the runner operation.";
-                    Params = runner.ExtraData as SequenceParams;
-                    //TODO
+                    var runner = active_session.GetSequenceRunner<SimSeqData>(key.RunnerNumber, HttpContext);
+                    if(runner ==null) {
+                        StatusMessage="Cannot contact a runner for the operation.";
+                    }
+                    else {
+                        StatusMessage="Starting the runner operation.";
+                        Params = runner.ExtraData as SequenceParams;
+                        //TODO
+                    }
                 }
-            }            
+            }
             return Task.CompletedTask;
         }
     }

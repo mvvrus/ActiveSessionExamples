@@ -11,7 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MVVrus.AspNetCore.ActiveSession" Version="0.9.2" />
+    <Reference Include="MVVrus.AspNetCore.ActiveSession">
+      <HintPath>..\..\ActiveSession\MVVrus.AspNetCore.ActiveSession\bin\Debug\net6.0\MVVrus.AspNetCore.ActiveSession.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

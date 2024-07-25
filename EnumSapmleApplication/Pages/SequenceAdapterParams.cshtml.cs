@@ -40,7 +40,10 @@ namespace SapmleApplication.Pages
                 IEnumerable<SimSeqData> source=new SyncDelayedEnumerble<SimSeqData>(seq_params.Stages, new SimSeqDataProducer().Sample);
                 RunnerKey key;
                 IRunner runner;
-                (runner, key)= HttpContext.GetActiveSession().CreateSequenceRunner(source,HttpContext);
+                int runner_number;
+                IActiveSession session= HttpContext.GetActiveSession();
+                (runner, runner_number)= session.CreateSequenceRunner(source,HttpContext);
+                key= new RunnerKey(runner_number,session.Generation);
                 runner.ExtraData=seq_params;
                 return RedirectToPage("SequenceShowResults", new { key });
             }
