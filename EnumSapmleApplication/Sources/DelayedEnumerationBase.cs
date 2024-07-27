@@ -3,15 +3,15 @@ namespace SapmleApplication.Sources
 {
     public class DelayedEnumerationBase
     {
-        readonly SimStage[] _stages;
+        readonly IReadOnlyList<SimStage> _stages;
         Int32 _currentStageIndex;
         Int32 _stageStep=-1; //Ajusted for the first MoveNext
         SimStage? CurrentStage { get =>
-                _currentStageIndex>=0 && _currentStageIndex<_stages.Length? _stages[_currentStageIndex]:null; }
+                _currentStageIndex>=0 && _currentStageIndex<_stages.Count? _stages[_currentStageIndex]:null; }
 
         public TimeSpan CurrentDelay { get => CurrentStage?.Delay??TimeSpan.Zero; }
 
-        protected DelayedEnumerationBase(SimStage[] stages) { 
+        protected DelayedEnumerationBase(IReadOnlyList<SimStage> stages) { 
             _stages = stages??throw new ArgumentNullException(nameof(stages));
         }
 

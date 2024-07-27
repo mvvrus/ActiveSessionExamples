@@ -14,8 +14,14 @@ namespace SapmleApplication.Pages
 {
     public class SequenceAdapterParamsModel : PageModel
     {
+        const string SYNC = "sync";
+        const string ASYNC = "async";
+
         [BindProperty]
         public BindParams? Input { get; set; }
+        [BindProperty]
+        [BindRequired]
+        public SequenceParams.SyncMode Mode { get; set; }
 
         public readonly List<SelectListItem> Units = new List<SelectListItem>
         {
@@ -29,21 +35,29 @@ namespace SapmleApplication.Pages
             Input.Stages=new List<BindStage> { new BindStage { Delay=0, Scale=1000 } };
         }
 
-        public void OnGet(String mode)
+        public void OnGet(SequenceParams.SyncMode mode)
         {
+            Mode=mode;
         }
 
-        public ActionResult OnPost(String mode) 
+        public ActionResult OnPost() 
         {
             if(ModelState.IsValid) {
                 SequenceParams seq_params=MakeSequenceParams();
-                IEnumerable<SimSeqData> source=new SyncDelayedEnumerble<SimSeqData>(seq_params.Stages, new SimSeqDataProducer().Sample);
+                //seq_params
                 ExtRunnerKey key;
                 IRunner runner;
                 int runner_number;
                 IActiveSession session= HttpContext.GetActiveSession();
-                (runner, runner_number)= session.CreateSequenceRunner(source,HttpContext);
-                key= new ExtRunnerKey(runner_number, session.Id, session.Generation);
+                switch(Mode) {
+                    case SequenceParams.SyncMode.sync:
+                        IEnumerable<SimSeqData> source = new SyncDelayedEnumerble<SimSeqData>(seq_params.Stages, new SimSeqDataProducer().Sample);
+                        (runner, runner_number)= session.CreateSequenceRunner(source, HttpContext);
+                        break;
+                    default:
+                        return StatusCode(400);
+                }
+                key=(session, runner_number);
                 runner.ExtraData=seq_params;
                 return RedirectToPage("SequenceShowResults", new { key });
             }
@@ -52,15 +66,15 @@ namespace SapmleApplication.Pages
 
         private SequenceParams MakeSequenceParams()
         {
-            SequenceParams result = new SequenceParams(Input!.Stages!.Count);
-            int ndx = 0;
+            List<SimStage> stages = new List<SimStage>(Input!.Stages!.Count);   
             foreach(BindStage stage in Input!.Stages!) {
-                result.Stages[ndx++]= new SimStage { 
-                    Count=stage.Count!.Value, 
-                    Delay=TimeSpan.FromMilliseconds(stage.Delay!.Value*stage.Scale) };
-
+                stages.Add(new SimStage
+                {
+                    Count=stage.Count!.Value,
+                    Delay=TimeSpan.FromMilliseconds(stage.Delay!.Value*stage.Scale)
+                });
             }
-            return result;
+            return new SequenceParams(stages, TimeSpan.FromSeconds(Input.PollInterval!.Value), Input.PollMaxCount, Mode);
         }
 
         public List<String>? CustomDisplayValidationErrors()
@@ -90,6 +104,12 @@ namespace SapmleApplication.Pages
         public class BindParams
         {
             public List<BindStage>? Stages { get; set; }
+            [Required]
+            [Range(1,60)]
+            [DisplayName("Poll interval (sec):")]
+            public Int32? PollInterval { get; set; }
+            [DisplayName("Max records per poll:")]
+            public Int32? PollMaxCount { get; set; }
         }
 
         public class BindStage

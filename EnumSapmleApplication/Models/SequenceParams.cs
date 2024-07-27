@@ -3,11 +3,19 @@
     //View model for SequenceAdapterParams
     public class SequenceParams
     {
-        public SimStage[] Stages { get; init; }
-        public SequenceParams(Int32 num_stages)
+        public IReadOnlyList<SimStage> Stages { get; init; }
+        public TimeSpan PollInterval { get; init; }
+        public Int32? PollMaxCount { get; init; }
+        public SyncMode Mode { get; init; }
+
+        public SequenceParams(List<SimStage> Stages, TimeSpan PollInterval, Int32? PollMaxCount, SyncMode Mode)
         {
-            Stages=new SimStage[num_stages];
+            this.Stages=Stages;
+            this.PollInterval=PollInterval;
+            this.PollMaxCount=PollMaxCount;
+            this.Mode=Mode;
         }
 
+        public enum SyncMode { sync, async};
     }
 }

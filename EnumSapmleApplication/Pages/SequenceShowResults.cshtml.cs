@@ -37,5 +37,12 @@ namespace SapmleApplication.Pages
             }
             return Task.CompletedTask;
         }
+
+        public String SmartInterval(TimeSpan Interval)
+        {
+            if(Interval==TimeSpan.Zero) return "0";
+            else if(Interval<TimeSpan.FromSeconds(1)) return Interval.TotalMilliseconds.ToString("F0owResults")+"ms";
+            else return Interval.TotalSeconds.ToString("F1")+"s";
+        }
     }
 }

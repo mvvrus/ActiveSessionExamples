@@ -4,24 +4,35 @@
     Layout = "_Layout";
     ViewData["Title"]="Sequence runner results";
 }
-<div>
-    <div id="left_pane" style="width:30%;display:inline-block">
+<h2 style="text-align:center">Sequence runner example. Parameters and results</h2>
+
+<div style="display:flex">
+    <div id="left_pane" style="display:inline-block;background-color:lightgray">
         @if(Model.Params!=null) {
-            <div>Operation parameters:</div>
+            <h3 style="text-align:center">Example parameters.</h3>
             <div>
-                <table>
-                    <tr><th>Iteration count:</th><th>Interval(ms):</th><th>Ends at position:</th></tr>
-                    @if (Model.Params.Stages != null) {
-                        int end_pos = 0;
-                        @foreach (SimStage stage in Model.Params.Stages) {
-                            <tr><td>@stage.Count</td><td>@stage.Delay</td><td>@(end_pos+=stage.Count)</td></tr>
+                <div style="margin-bottom:0.2em"><b>Mode</b>:@(Model.Params.Mode)</div>
+                <div style="margin-bottom:0.2em"><b>Poll interval</b>:@(Model.Params.PollInterval)</div>
+                <div style="margin-bottom:0.2em"><b>Items per poll</b>:
+                    @(Model.Params.PollMaxCount.HasValue ? Model.Params.PollMaxCount.Value.ToString():"not set")</div>
+                <div>
+                    <div><b>Stages</b>:</div>
+                    <table style="margin-left:5px">
+                        <tr><th>#</th><th>Iterations:</th><th>Delay:</th><th>Ends at:</th></tr>
+                        @if (Model.Params.Stages != null) {
+                            int num = 0;
+                            int end_pos = 0;
+                            @foreach (SimStage stage in Model.Params.Stages) {
+                                <tr><td>@(++num)</td><td>@stage.Count</td><td>@(Model.SmartInterval(stage.Delay))</td><td>@(end_pos+=stage.Count)</td></tr>
+                            }
                         }
-                    }
-                </table>
-             </div>
+                    </table>
+                </div>
+            </div>
         }
     </div>
-    <div style="display:inline-block;width:unset">
+    <div style="display:inline-block">
+        <h3 style="text-align:center">Example results.</h3>
         <div>
             Operation status: <span id="status_span">@Model.StatusMessage</span>
         </div>

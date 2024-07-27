@@ -1,52 +1,61 @@
-﻿@page "{mode}"
+﻿@page "{mode:regex(^a?sync$)}"
 @model SapmleApplication.Pages.SequenceAdapterParamsModel
 @{
     Layout = "_Layout";
-    ViewData["Title"]="Sequence params";
+    ViewData["Title"]="Enter parameters";
     String stage_prefix = "Stage_";
     String stage0id = stage_prefix+"0";
     String stagesid = "stage_table";
     Int32 bind_count = (Math.Max(Model.Input?.Stages?.Count ?? 1, 1));
-    //"font-size:1.2rem;font-weight:600"
 }
-<form asp-page="/SequenceAdapterParams" asp-route-mode="sync" style="padding:10px; width:max-content">
-    <h3 style="margin-bottom:1px">Enumeration stages:</h3>
-    <div id="@stagesid" style="margin:5px; margin-left:10px; border-style:solid; border-width:thin; padding:2px">
-        @for (int row=0; row<bind_count; row++) {
-            <div id="@(stage_prefix+row.ToString())" style="margin-top: 2px; margin-bottom: 2px;">
-                @row:
-                <label asp-for="Input!.Stages![row].Count"></label>
-                <input asp-for="Input!.Stages![row].Count" class="column" />
-                <label asp-for="Input!.Stages![row].Delay"></label>
-                <input asp-for="Input!.Stages![row].Delay" class="column" />
-                <label asp-for="Input!.Stages![row].Scale"></label>
-                <select asp-for="Input!.Stages![row].Scale" asp-items="Model.Units" class="column"></select>
+<div>
+    <h2 style="margin-bottom:1px;text-align:center">Enter parameters for running sequence runner example (mode: @Model.Mode).</h2>
+    <form asp-page="/SequenceAdapterParams" asp-route-mode="@Model.Mode" style="padding-left:10px; width:max-content">
+        <h3 style="margin-bottom:1px">Polling paraneters:</h3>
+        <div style="margin-left:10px">
+            <div style="min-width:9em; height:1.4em; display:inline-block"><label asp-for="Input!.PollInterval"></label></div>
+            <input asp-for="Input!.PollInterval" class="column" />
+            <br/>
+            <div style="min-width:9em; height:1.4em; display:inline-block"><label asp-for="Input!.PollMaxCount"></label></div>
+            <input asp-for="Input!.PollMaxCount" class="column" />
         </div>
-        }
-    </div>
-    <div style="margin-left:10px;position:relative; text-align:center; height:1.6rem">
-        <button type="button" id="add_stage_btn" onclick="addStage()" style="position:absolute;left:0px">+</button>
-        &lt;-   Add or remove stage   -&gt;
-        <button type="button" id="rem_stage_btn" onclick="removeStage()" style="position:absolute;right:5px" @(bind_count<2?"disabled":"")>-</button>
-    </div>
-    <div>
-        <button type="submit">Submit</button>
-    </div>
-    <div style="margin:5px">
-        @{
-            List<String>? errors = Model.CustomDisplayValidationErrors();
-            if(errors!=null) {
-                <h3>Input validation errors found:</h3>
-                <ul style="color:red">
-                    @foreach(String error in errors) {
-                        <li>@error</li>
-                }
-                    </ul>
+        <h3 style="margin-bottom:1px">Enumeration stages:</h3>
+        <div id="@stagesid" style="margin:5px; margin-left:10px; border-style:solid; border-width:thin; padding:2px">
+            @for (int row=0; row<bind_count; row++) {
+                <div id="@(stage_prefix+row.ToString())" style="margin-top: 2px; margin-bottom: 2px;">
+                    @row:
+                    <label asp-for="Input!.Stages![row].Count"></label>
+                    <input asp-for="Input!.Stages![row].Count" class="column" />
+                    <label asp-for="Input!.Stages![row].Delay"></label>
+                    <input asp-for="Input!.Stages![row].Delay" class="column" />
+                    <label asp-for="Input!.Stages![row].Scale"></label>
+                    <select asp-for="Input!.Stages![row].Scale" asp-items="Model.Units" class="column"></select>
+            </div>
             }
-        }
-    </div>
-</form>
-
+        </div>
+        <div style="margin-left:10px;position:relative; text-align:center; height:1.6rem">
+            <button type="button" id="add_stage_btn" onclick="addStage()" style="position:absolute;left:0px">+</button>
+            &lt;-   Add or remove stage   -&gt;
+            <button type="button" id="rem_stage_btn" onclick="removeStage()" style="position:absolute;right:5px" @(bind_count<2?"disabled":"")>-</button>
+        </div>
+        <div>
+            <button type="submit">Submit</button>
+        </div>
+        <div style="margin:5px">
+            @{
+                List<String>? errors = Model.CustomDisplayValidationErrors();
+                if(errors!=null) {
+                    <h3>Input validation errors found:</h3>
+                    <ul style="color:red">
+                        @foreach(String error in errors) {
+                            <li>@error</li>
+                    }
+                        </ul>
+                }
+            }
+        </div>
+    </form>
+</div>
 @section Head{
     <style>
         .column {width:5em}
