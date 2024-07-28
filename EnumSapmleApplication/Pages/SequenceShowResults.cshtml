@@ -4,38 +4,66 @@
     Layout = "_Layout";
     ViewData["Title"]="Sequence runner results";
 }
-<h2 style="text-align:center">Sequence runner example. Parameters and results</h2>
+<h2 style="margin-bottom: 0.2rem;text-align:center">Sequence runner example. Parameters and results</h2>
+<div style="text-align:center;font-size: 1.1em;">
+    Startup status: <span id="status_span">@Model.StartupStatusMessage</span>
+</div>
 
-<div style="display:flex">
-    <div id="left_pane" style="display:inline-block;background-color:lightgray">
-        @if(Model.Params!=null) {
-            <h3 style="text-align:center">Example parameters.</h3>
-            <div>
-                <div style="margin-bottom:0.2em"><b>Mode</b>:@(Model.Params.Mode)</div>
-                <div style="margin-bottom:0.2em"><b>Poll interval</b>:@(Model.Params.PollInterval)</div>
-                <div style="margin-bottom:0.2em"><b>Items per poll</b>:
-                    @(Model.Params.PollMaxCount.HasValue ? Model.Params.PollMaxCount.Value.ToString():"not set")</div>
+@if(Model._params!=null) {
+    <div style="display:flex">
+        <div id="left_pane" style="display:inline-block; min-width:20%">
+            <h3>Example parameters.</h3>
+            <div style ="background-color: lightgray;">
+                <div style="margin-bottom:0.2em"><b>Mode</b>:@(Model._params.Mode)</div>
+                <div style="margin-bottom:0.2em"><b>Max #records at start</b>:@(Model._params.StartCount)</div>
+                <div style="margin-bottom:0.2em"><b>Poll interval</b>:@(Model._params.PollInterval.TotalSeconds)</div>
+                <div style="margin-bottom:0.2em"><b>Max #records per poll</b>:
+                    @(Model._params.PollMaxCount.HasValue ? Model._params.PollMaxCount.Value.ToString():"not set")</div>
                 <div>
                     <div><b>Stages</b>:</div>
                     <table style="margin-left:5px">
                         <tr><th>#</th><th>Iterations:</th><th>Delay:</th><th>Ends at:</th></tr>
-                        @if (Model.Params.Stages != null) {
+                        @if (Model._params.Stages != null) {
                             int num = 0;
                             int end_pos = 0;
-                            @foreach (SimStage stage in Model.Params.Stages) {
-                                <tr><td>@(++num)</td><td>@stage.Count</td><td>@(Model.SmartInterval(stage.Delay))</td><td>@(end_pos+=stage.Count)</td></tr>
+                            @foreach (SimStage stage in Model._params.Stages) {
+                                <tr><td>@(num++)</td><td>@stage.Count</td><td>@(Model.SmartInterval(stage.Delay))</td><td>@(end_pos+=stage.Count)</td></tr>
                             }
                         }
                     </table>
                 </div>
             </div>
-        }
-    </div>
-    <div style="display:inline-block">
-        <h3 style="text-align:center">Example results.</h3>
-        <div>
-            Operation status: <span id="status_span">@Model.StatusMessage</span>
         </div>
-        Runner OK: @Model._runner_ok;
+        <div style="display:inline-block;min-width:5em"></div>
+        <div style="display:inline-block">
+            <h3 style="text-align:center">Example results.</h3>
+            <div>
+                Status: <span id="status">@Model._status</span>
+                #Records: <span id="position">@Model._position</span>
+            </div>
+            <table id="results">
+                <tr><th>Number</th><th>Name</th><th>Data</th></tr>
+                @for(int row=0;row<Model._position;row++) {
+                    <tr>
+                        <td class="number">@Model._results[row].Number</td>
+                        <td class="name">@Model._results[row].Name</td>
+                        <td class="data">@Model._results[row].Data</td>
+                    </tr>
+                }
+            </table>
+        </div>
     </div>
-</div>
+}
+
+@section Head{
+    <script>
+        var runner_key = { 
+            RunnerKey: { 
+                RunneNumber: @Model._key.RunnerNumber,
+                Generation: @Model._key.Generation,
+                ActiveSessionId: "@Model._key.ActiveSessionId"
+            },
+            Advance: @(Model._params?.PollMaxCount?.ToString()??"null")
+        }
+    </script>
+}

@@ -13,7 +13,7 @@ namespace SapmleApplication.Sources
             _stepResultFunc= step_result_func;
         }
 
-        public T Current { get => _stepResultFunc(Math.Min(_currentStep,0)); }
+        public T Current { get => _stepResultFunc(Math.Max(_currentStep,0)); }
 
         public Boolean MoveNext()
         {

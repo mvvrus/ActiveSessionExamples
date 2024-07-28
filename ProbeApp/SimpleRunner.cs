@@ -70,11 +70,11 @@ namespace ProbeApp
         {
             Thread.Sleep(0);
             lock (_lock) {
-                if((Status==Stalled || Status==Progressed) && _state_to_set!=Complete) {
+                if((Status==Stalled || Status==Progressed) && _state_to_set!=Completed) {
                     Position++;
                     _last_set=Position;
                     if(Position>=_end) {
-                        _state_to_set=Complete;
+                        _state_to_set=Completed;
                     }
                     else {
                         _state_to_set=Stalled;

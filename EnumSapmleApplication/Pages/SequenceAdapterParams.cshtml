@@ -11,15 +11,20 @@
 <div>
     <h2 style="margin-bottom:1px;text-align:center">Enter parameters for running sequence runner example (mode: @Model.Mode).</h2>
     <form asp-page="/SequenceAdapterParams" asp-route-mode="@Model.Mode" style="padding-left:10px; width:max-content">
-        <h3 style="margin-bottom:1px">Polling paraneters:</h3>
+        <div style="margin-top: 1em;">
+            <div style="min-width:11.5em; height:1.4em; display:inline-block"><label asp-for="Input!.StartCount" style="font-size:1.1em;font-weight:600"></label></div>
+            <input asp-for="Input!.StartCount" class="column" autofocus />
+         </div>
+        <h3 style="margin-bottom:1px;">Polling paraneters:</h3>
         <div style="margin-left:10px">
-            <div style="min-width:9em; height:1.4em; display:inline-block"><label asp-for="Input!.PollInterval"></label></div>
+            <div style="min-width:11.2em; height:1.4em; display:inline-block"><label asp-for="Input!.PollInterval"></label>
+            </div>
             <input asp-for="Input!.PollInterval" class="column" />
             <br/>
-            <div style="min-width:9em; height:1.4em; display:inline-block"><label asp-for="Input!.PollMaxCount"></label></div>
+            <div style="min-width:11.2em; height:1.4em; display:inline-block"><label asp-for="Input!.PollMaxCount"></label></div>
             <input asp-for="Input!.PollMaxCount" class="column" />
         </div>
-        <h3 style="margin-bottom:1px">Enumeration stages:</h3>
+        <h3 style="margin-top: 0.2em;margin-bottom:1px">Enumeration stages:</h3>
         <div id="@stagesid" style="margin:5px; margin-left:10px; border-style:solid; border-width:thin; padding:2px">
             @for (int row=0; row<bind_count; row++) {
                 <div id="@(stage_prefix+row.ToString())" style="margin-top: 2px; margin-bottom: 2px;">
@@ -83,6 +88,7 @@
                 }
             }
             stages_div.append(new_stage);
+            new_stage.querySelector("input").focus();
         }
 
         function removeStage() {

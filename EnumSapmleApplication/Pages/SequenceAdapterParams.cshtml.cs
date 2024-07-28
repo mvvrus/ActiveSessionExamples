@@ -74,7 +74,7 @@ namespace SapmleApplication.Pages
                     Delay=TimeSpan.FromMilliseconds(stage.Delay!.Value*stage.Scale)
                 });
             }
-            return new SequenceParams(stages, TimeSpan.FromSeconds(Input.PollInterval!.Value), Input.PollMaxCount, Mode);
+            return new SequenceParams(stages, TimeSpan.FromSeconds(Input.PollInterval!.Value), Input.PollMaxCount, Mode, Input.StartCount!.Value);
         }
 
         public List<String>? CustomDisplayValidationErrors()
@@ -105,11 +105,15 @@ namespace SapmleApplication.Pages
         {
             public List<BindStage>? Stages { get; set; }
             [Required]
-            [Range(1,60)]
+            [Range(1, 60)]
             [DisplayName("Poll interval (sec):")]
-            public Int32? PollInterval { get; set; }
+            public Int32? PollInterval { get; set; } = 1;
             [DisplayName("Max records per poll:")]
             public Int32? PollMaxCount { get; set; }
+            [Required]
+            [Range(1, 40)]
+            [DisplayName("Records to fetch at start:")]
+            public Int32? StartCount { get; set; } = 20;
         }
 
         public class BindStage

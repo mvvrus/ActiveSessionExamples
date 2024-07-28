@@ -11,31 +11,39 @@ namespace SapmleApplication.Pages
 {
     public class SequenceShowResultsModel : PageModel
     {
-        public SequenceParams? Params;
-        public Boolean _runner_ok = false;
-        public String StatusMessage { get; private set; } = "";
-        public Task OnGetAsync([ModelBinder<ExtRunnerKeyMvcModelBinder>]ExtRunnerKey key)
+        internal SequenceParams? _params;
+        internal List<SimSeqData> _results=new List<SimSeqData>();
+        internal RunnerStatus _status;
+        internal Int32 _position;
+        internal Exception? _exception;
+        internal ExtRunnerKey _key;
+        public String StartupStatusMessage { get; private set; } = "";
+
+        public async Task OnGetAsync([ModelBinder<ExtRunnerKeyMvcModelBinder>]ExtRunnerKey key)
         {
+            _key=key;
             IActiveSession active_session = HttpContext.GetActiveSession();
             if(!active_session.IsAvailable) {
-                StatusMessage="Active session is unavailable.";
+                StartupStatusMessage="Active session is unavailable.";
             }
             else {
-                if(key.Generation!=active_session.Generation || key.ActiveSessionId!=active_session.Id) StatusMessage="Active session was replaced.";
+                if(key.Generation!=active_session.Generation || key.ActiveSessionId!=active_session.Id) StartupStatusMessage="Active session was replaced.";
                 else {
                     var runner = active_session.GetSequenceRunner<SimSeqData>(key.RunnerNumber, HttpContext);
                     if(runner ==null) {
-                        StatusMessage="Cannot contact a runner for the operation.";
+                        StartupStatusMessage="Cannot find a runner.";
                     }
                     else {
-                        StatusMessage="Starting the runner operation.";
-                        Params = runner.ExtraData as SequenceParams;
-                        _runner_ok=true;
+                        StartupStatusMessage="The runner is availble.";
+                        _params = runner.ExtraData as SequenceParams;
+                        IEnumerable<SimSeqData> res_enum;
+                        (res_enum,_status,_position,_exception) = 
+                            await runner.GetRequiredAsync(_params?.StartCount??IRunner.DEFAULT_ADVANCE, TraceIdentifier: HttpContext.TraceIdentifier);
+                        _results = res_enum.ToList();
                         //TODO
                     }
                 }
             }
-            return Task.CompletedTask;
         }
 
         public String SmartInterval(TimeSpan Interval)
