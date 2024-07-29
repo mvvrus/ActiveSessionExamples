@@ -17,19 +17,23 @@ namespace SapmleApplication.Pages
         internal Int32 _position;
         internal Exception? _exception;
         internal ExtRunnerKey _key;
-        public String StartupStatusMessage { get; private set; } = "";
+        internal String? _GetAvailableEndpoint;
 
-        public async Task OnGetAsync([ModelBinder<ExtRunnerKeyMvcModelBinder>]ExtRunnerKey key)
+        public String StartupStatusMessage { get; private set; } = "";
+        
+
+        public async Task OnGetAsync([ModelBinder<ExtRunnerKeyMvcModelBinder>]ExtRunnerKey Key)
         {
-            _key=key;
+            _GetAvailableEndpoint=Url.ActionLink("GetAvailable","Sample");
+            _key=Key;
             IActiveSession active_session = HttpContext.GetActiveSession();
             if(!active_session.IsAvailable) {
                 StartupStatusMessage="Active session is unavailable.";
             }
             else {
-                if(key.Generation!=active_session.Generation || key.ActiveSessionId!=active_session.Id) StartupStatusMessage="Active session was replaced.";
+                if(Key.Generation!=active_session.Generation || Key.ActiveSessionId!=active_session.Id) StartupStatusMessage="Active session was replaced.";
                 else {
-                    var runner = active_session.GetSequenceRunner<SimSeqData>(key.RunnerNumber, HttpContext);
+                    var runner = active_session.GetSequenceRunner<SimSeqData>(Key.RunnerNumber, HttpContext);
                     if(runner ==null) {
                         StartupStatusMessage="Cannot find a runner.";
                     }

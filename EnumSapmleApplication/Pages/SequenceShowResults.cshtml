@@ -1,4 +1,5 @@
 ﻿@page "{key}"
+@using System.Net
 @model SapmleApplication.Pages.SequenceShowResultsModel
 @{
     Layout = "_Layout";
@@ -51,6 +52,12 @@
                     </tr>
                 }
             </table>
+            <div>
+                <button type="button" onclick=getAvailable()>Test</button>
+            </div>
+            <div style="height:10em">
+                <textarea id="test_result"></textarea>
+            </div>
         </div>
     </div>
 }
@@ -58,12 +65,28 @@
 @section Head{
     <script>
         var runner_key = { 
-            RunnerKey: { 
-                RunneNumber: @Model._key.RunnerNumber,
-                Generation: @Model._key.Generation,
-                ActiveSessionId: "@Model._key.ActiveSessionId"
-            },
-            Advance: @(Model._params?.PollMaxCount?.ToString()??"null")
+            RunnerNumber: @Model._key.RunnerNumber,
+            Generation: @Model._key.Generation,
+            _ActiveSessionId: "@(WebUtility.UrlEncode( Model._key.ActiveSessionId))",
+            get ActiveSessionId() { return decodeURI(this._ActiveSessionId); }
+        }, Advance = @(Model._params?.PollMaxCount?.ToString()??"null")
+       
+        async function getAvailable()
+        {
+            let test_result = document.getElementById("test_result");
+            let request = {
+                RunnerKey: runner_key,
+                Advance: Advance
+            }
+            let responce = await fetch("@Model._GetAvailableEndpoint", {
+                method:"POST",
+                headers: {
+                    "Content-type":"application/json;charset=utf-8"
+                },
+                body: JSON.stringify(request)
+            })
+            let result = await responce.json();
+            test_result.innerText = JSON.stringify(result);
         }
     </script>
 }

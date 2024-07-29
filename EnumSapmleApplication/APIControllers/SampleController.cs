@@ -19,8 +19,10 @@ namespace SampleApplication.APIControllers
                 var runner = session.GetSequenceRunner<SimSeqData>(Request.RunnerKey.RunnerNumber, HttpContext);
                 if(runner!=null) {
                     SampleSequenceResponce responce = new SampleSequenceResponce();
-                    (responce.Result, responce.RunnerStatus, responce.Position, responce.Exception) =
+                    RunnerStatus runner_status;
+                    (responce.Result, runner_status, responce.Position, responce.Exception) =
                         runner.GetAvailable(Request.Advance??Int32.MaxValue, TraceIdentifier:HttpContext.TraceIdentifier);
+                    responce.RunnerStatus=runner_status.ToString();
                     return responce;
                 }
             }
