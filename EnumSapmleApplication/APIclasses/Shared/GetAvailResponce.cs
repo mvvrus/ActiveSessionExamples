@@ -4,10 +4,10 @@ namespace SampleApplication.APIclasses
 {
     public class GetAvailResponce<TResult>
     {
-        public Int32 Status { get; init; } = StatusCodes.Status200OK;
-        public String? RunnerStatus { get; set; }
-        public Int32 Position { get; set; }
-        public Exception? Exception { get; set; }
-        public TResult? Result { get; set; }
+        public Int32 status { get; init; } = StatusCodes.Status200OK;
+        public String? runnerStatus { get; set; }
+        public Int32 position { get; set; }
+        public Exception? exception { get; set; }
+        public TResult? result { get; set; }
     }
 }

@@ -20,9 +20,9 @@ namespace SampleApplication.APIControllers
                 if(runner!=null) {
                     SampleSequenceResponce responce = new SampleSequenceResponce();
                     RunnerStatus runner_status;
-                    (responce.Result, runner_status, responce.Position, responce.Exception) =
+                    (responce.result, runner_status, responce.position, responce.exception) =
                         runner.GetAvailable(Request.Advance??Int32.MaxValue, TraceIdentifier:HttpContext.TraceIdentifier);
-                    responce.RunnerStatus=runner_status.ToString();
+                    responce.runnerStatus=runner_status.ToString();
                     return responce;
                 }
             }

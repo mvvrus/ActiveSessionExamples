@@ -1,4 +1,4 @@
-﻿@page "{key}"
+﻿@page "{key}" 
 @using System.Net
 @model SapmleApplication.Pages.SequenceShowResultsModel
 @{
@@ -7,17 +7,17 @@
 }
 <h2 style="margin-bottom: 0.2rem;text-align:center">Sequence runner example. Parameters and results</h2>
 <div style="text-align:center;font-size: 1.1em;">
-    Startup status: <span id="status_span">@Model.StartupStatusMessage</span>
+    Back-end status: <span id="back_status">@Model.StartupStatusMessage</span>
 </div>
 
 @if(Model._params!=null) {
     <div style="display:flex">
-        <div id="left_pane" style="display:inline-block; min-width:20%">
+        <div id="left_pane" style="display:inline-block; min-width:30%">
             <h3>Example parameters.</h3>
             <div style ="background-color: lightgray;">
                 <div style="margin-bottom:0.2em"><b>Mode</b>:@(Model._params.Mode)</div>
                 <div style="margin-bottom:0.2em"><b>Max #records at start</b>:@(Model._params.StartCount)</div>
-                <div style="margin-bottom:0.2em"><b>Poll interval</b>:@(Model._params.PollInterval.TotalSeconds)</div>
+                <div style="margin-bottom:0.2em"><b>Poll interval</b>:@(Model._params.PollInterval.TotalSeconds)s</div>
                 <div style="margin-bottom:0.2em"><b>Max #records per poll</b>:
                     @(Model._params.PollMaxCount.HasValue ? Model._params.PollMaxCount.Value.ToString():"not set")</div>
                 <div>
@@ -28,7 +28,7 @@
                             int num = 0;
                             int end_pos = 0;
                             @foreach (SimStage stage in Model._params.Stages) {
-                                <tr><td>@(num++)</td><td>@stage.Count</td><td>@(Model.SmartInterval(stage.Delay))</td><td>@(end_pos+=stage.Count)</td></tr>
+                                <tr><td style="min-width:2em">@(num++)</td><td>@stage.Count</td><td>@(Model.SmartInterval(stage.Delay))</td><td>@(end_pos+=stage.Count)</td></tr>
                             }
                         }
                     </table>
@@ -36,26 +36,28 @@
             </div>
         </div>
         <div style="display:inline-block;min-width:5em"></div>
-        <div style="display:inline-block">
+        <div style="display:inline-block; min-width:30%">
             <h3 style="text-align:center">Example results.</h3>
             <div>
-                Status: <span id="status">@Model._status</span>
-                #Records: <span id="position">@Model._position</span>
+                <span style="margin-left: 10px; font-weight:600">Status:</span> <span id="runner_status">@Model._status</span>
+                <span style="margin-left: 10px; font-weight:600">#Records:</span> <span id="position">@Model._position</span>
             </div>
-            <table id="results">
-                <tr><th>Number</th><th>Name</th><th>Data</th></tr>
-                @for(int row=0;row<Model._position;row++) {
-                    <tr>
-                        <td class="number">@Model._results[row].Number</td>
-                        <td class="name">@Model._results[row].Name</td>
-                        <td class="data">@Model._results[row].Data</td>
-                    </tr>
-                }
+            <div class="records number">Number</div><div class="records name">Name</div><div class="records name">Data</div>
+            <table style="display:block;border-style:solid;border-width:thin;height:15em;overflow:auto">
+                <tbody id="results_table">
+                    @for(int row = 0; row<Model._position; row++) {
+                        <tr>
+                            <td class="records number">@Model._results[row].Number</td>
+                            <td class="records name">@Model._results[row].Name</td>
+                            <td class="records data">@Model._results[row].Data</td>
+                        </tr>
+                    }
+                </tbody>
             </table>
             <div>
                 <button type="button" onclick=getAvailable()>Test</button>
             </div>
-            <div style="height:10em">
+            <div style="width:10em;height:10em">
                 <textarea id="test_result"></textarea>
             </div>
         </div>
@@ -86,7 +88,30 @@
                 body: JSON.stringify(request)
             })
             let result = await responce.json();
+            if (responce.ok) 
+            {
+                runner_status.innerText = result.runnerStatus;
+                position.innerText = result.position;
+                for (item of result.result) {
+                    let new_row = results_table.lastElementChild.cloneNode(true);
+                    new_row.children[0].innerText = item.number;
+                    new_row.children[1].innerText = item.name;
+                    new_row.children[2].innerText = item.data;
+                    results_table.append(new_row);
+                    results_table.lastElementChild.scrollIntoView();
+                }
+            }
+            else {
+                if (responce.status == 404) back_status.innerText = "The runner is no more availble.";
+                else back_status.innerText = "Failed to contact back-end.";
+            }
             test_result.innerText = JSON.stringify(result);
         }
     </script>
+    <style>
+        div.records {display:inline-block; font-weight:600}
+        td.number, td.name, td.data {min-width: 5em}
+        div.name, div.data {min-width: 5.5em}
+        div.number {padding-left:0.2em;min-width: 5.3em}
+    </style>
 }

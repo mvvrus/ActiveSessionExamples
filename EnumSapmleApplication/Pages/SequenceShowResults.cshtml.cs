@@ -18,6 +18,8 @@ namespace SapmleApplication.Pages
         internal Exception? _exception;
         internal ExtRunnerKey _key;
         internal String? _GetAvailableEndpoint;
+        internal String RUNNER_COMPLETED = "The runner is completed.";
+        internal String RUNNER_RUNNING = "The runner is running in background.";
 
         public String StartupStatusMessage { get; private set; } = "";
         
@@ -44,7 +46,11 @@ namespace SapmleApplication.Pages
                         (res_enum,_status,_position,_exception) = 
                             await runner.GetRequiredAsync(_params?.StartCount??IRunner.DEFAULT_ADVANCE, TraceIdentifier: HttpContext.TraceIdentifier);
                         _results = res_enum.ToList();
-                        //TODO
+                        if(_status.IsFinal()) StartupStatusMessage=RUNNER_COMPLETED;
+                        else {
+                            StartupStatusMessage="The runner is running in background.";
+                            //TODO Start polling script
+                        }
                     }
                 }
             }
@@ -53,7 +59,7 @@ namespace SapmleApplication.Pages
         public String SmartInterval(TimeSpan Interval)
         {
             if(Interval==TimeSpan.Zero) return "0";
-            else if(Interval<TimeSpan.FromSeconds(1)) return Interval.TotalMilliseconds.ToString("F0owResults")+"ms";
+            else if(Interval<TimeSpan.FromSeconds(1)) return Interval.TotalMilliseconds.ToString("F0")+"ms";
             else return Interval.TotalSeconds.ToString("F1")+"s";
         }
     }
