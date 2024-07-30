@@ -46,5 +46,13 @@ namespace SampleApplication.APIControllers
             }
             return StatusCode(StatusCodes.Status404NotFound);
         }
+
+        [HttpPost("[action]")]
+        public IActionResult TerminateSession()
+        {
+            IActiveSession session = HttpContext.GetActiveSession();
+            session.Terminate(HttpContext);
+            return StatusCode(StatusCodes.Status204NoContent);
+        }
     }
 }

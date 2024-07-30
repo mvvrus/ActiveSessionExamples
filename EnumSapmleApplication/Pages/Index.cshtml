@@ -6,6 +6,7 @@
 }
 <div style="text-align:center;font-size: 1.1em; margin-top:1.2em">
     <span class="annotation">Current ActiveSession</span>:<span>@Model._activeSession!.Id:@Model._activeSession.Generation</span>
+    <button type="button" onclick="newSession()">New</button>
 </div>
 <div>
     <ul>
@@ -17,5 +18,20 @@
     <style>
         span.annotation {font-weight:600}
     </style>
+
+    <script>
+        async function newSession() {
+            let request = {};
+            let response = await fetch("@Model._terminateSessionEndpoint", {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json;charset=utf-8"
+                },
+                body: JSON.stringify(request)
+            })
+            let result = await response.blob();
+            window.location.reload();
+        }
+    </script>
  }
 
