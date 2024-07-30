@@ -2,7 +2,7 @@
 
 namespace SampleApplication.APIclasses
 {
-    public class SampleSequenceResponce : GetAvailableSequenceResponce<SimSeqData>
+    public class SampleSequenceResponse : GetAvailableSequenceResponse<SimSeqData>
     {
     }
 }

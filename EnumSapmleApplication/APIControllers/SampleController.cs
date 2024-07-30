@@ -12,20 +12,36 @@ namespace SampleApplication.APIControllers
     public class SampleController : ControllerBase
     {
         [HttpPost("[action]")]
-        public ActionResult<SampleSequenceResponce> GetAvailable(GetAvailableRequest Request)
+        public ActionResult<SampleSequenceResponse> GetAvailable(GetAvailableRequest Request)
         {
             IActiveSession session = HttpContext.GetActiveSession();
             if(session.IsAvailable && Request.RunnerKey.IsForSession(session)) {
                 var runner = session.GetSequenceRunner<SimSeqData>(Request.RunnerKey.RunnerNumber, HttpContext);
                 if(runner!=null) {
-                    SampleSequenceResponce responce = new SampleSequenceResponce();
-                    responce.backgroundProgress=runner.GetProgress().Progress;
-                    responce.isBackgroundExecutionCompleted=runner.IsBackgroundExecutionCompleted;
+                    SampleSequenceResponse response = new SampleSequenceResponse();
+                    response.backgroundProgress=runner.GetProgress().Progress;
+                    response.isBackgroundExecutionCompleted=runner.IsBackgroundExecutionCompleted;
                     RunnerStatus runner_status;
-                    (responce.result, runner_status, responce.position, responce.exception) =
+                    (response.result, runner_status, response.position, response.exception) =
                         runner.GetAvailable(Request.Advance??Int32.MaxValue, TraceIdentifier:HttpContext.TraceIdentifier);
-                    responce.runnerStatus=runner_status.ToString();
-                    return responce;
+                    response.runnerStatus=runner_status.ToString();
+                    return response;
+                }
+            }
+            return StatusCode(StatusCodes.Status404NotFound);
+        }
+
+        [HttpPost("[action]")]
+        public ActionResult<AbortResponse> Abort(AbortRequest Request)
+        {
+            IActiveSession session = HttpContext.GetActiveSession();
+            if(session.IsAvailable && Request.RunnerKey.IsForSession(session)) {
+                var runner = session.GetSequenceRunner<SimSeqData>(Request.RunnerKey.RunnerNumber, HttpContext);
+                if(runner!=null) {
+                    AbortResponse response = new AbortResponse();
+                    response.runnerStatus=runner.Abort(HttpContext.TraceIdentifier).ToString();
+                    return response;
+                    
                 }
             }
             return StatusCode(StatusCodes.Status404NotFound);

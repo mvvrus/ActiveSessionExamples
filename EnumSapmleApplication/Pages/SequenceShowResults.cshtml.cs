@@ -18,6 +18,7 @@ namespace SapmleApplication.Pages
         internal Exception? _exception;
         internal ExtRunnerKey _key;
         internal String? _GetAvailableEndpoint;
+        internal String? _AbortEndpoint;
         internal String RUNNER_COMPLETED = "The runner is completed.";
         internal String RUNNER_RUNNING = "The runner is running in background.";
         internal Int32 _bkgProgress;
@@ -29,6 +30,7 @@ namespace SapmleApplication.Pages
         public async Task OnGetAsync([ModelBinder<ExtRunnerKeyMvcModelBinder>]ExtRunnerKey Key)
         {
             _GetAvailableEndpoint=Url.ActionLink("GetAvailable","Sample");
+            _AbortEndpoint=Url.ActionLink("Abort", "Sample");
             _key=Key;
             IActiveSession active_session = HttpContext.GetActiveSession();
             if(!active_session.IsAvailable) {

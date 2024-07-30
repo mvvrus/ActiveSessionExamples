@@ -2,7 +2,7 @@
 
 namespace SampleApplication.APIclasses
 {
-    public class GetAvailResponce<TResult>
+    public class GetAvailableResponse<TResult>
     {
         public Int32 status { get; init; } = StatusCodes.Status200OK;
         public String? runnerStatus { get; set; }

@@ -63,6 +63,9 @@
                     }
                 </tbody>
             </table>
+            <div>
+                <button type="button" id="abort_btn" onclick="abort()">Abort</button>
+            </div>
         </div>
     </div>
 }
@@ -79,23 +82,25 @@
         Advance = @(Model._params?.PollMaxCount?.ToString()??"null"),
         pollInterval = @Model._params?.PollInterval.TotalMilliseconds,
         pollActive=@(Model._status.IsFinal()?"false":"true");
+        var curTimer;
        
         async function getAvailable()
         {
-            let test_result = document.getElementById("test_result");
+            curTimer = undefined;
+
             let request = {
                 RunnerKey: runner_key,
                 Advance: Advance
             }
-            let responce = await fetch("@Model._GetAvailableEndpoint", {
+            let response = await fetch("@Model._GetAvailableEndpoint", {
                 method:"POST",
                 headers: {
                     "Content-type":"application/json;charset=utf-8"
                 },
                 body: JSON.stringify(request)
             })
-            let result = await responce.json();
-            if (responce.ok) 
+            let result = await response.json();
+            if (response.ok) 
             {
                 runner_status.innerText = result.runnerStatus;
                 pollActive = result.runnerStatus.toLowerCase() == "progressed" || result.runnerStatus.toLowerCase() == "stalled";
@@ -110,17 +115,53 @@
                     results_table.append(new_row);
                     results_table.lastElementChild.scrollIntoView();
                 }
-                schedulePoll();
                 if (!pollActive) back_status.innerText = "@Model.RUNNER_COMPLETED";
             }
             else {
-                if (responce.status == 404) back_status.innerText = "The runner is not availble anymore.";
-                else back_status.innerText = "Failed to contact serer, HTTP status code is " + responce.status;
+                if (response.status == 404) back_status.innerText = "The runner is not availble anymore.";
+                else back_status.innerText = "Failed to contact serer, HTTP status code is " + response.status;
+                pollActive = false;
             }
+            schedulePoll();
         }
 
         function schedulePoll() {
-            if (pollActive) setTimeout(getAvailable, pollInterval);
+            if (pollActive) {
+                console.log("poll")
+                abort_btn.removeAttribute("disabled");
+                curTimer = setTimeout(getAvailable, pollInterval);
+            }
+            else {
+                console.log("no poll")
+                abort_btn.setAttribute("disabled", "")
+            }
+        }
+
+        async function abort() {
+            let request = {
+                RunnerKey: runner_key,
+            }
+            let response = await fetch("@Model._AbortEndpoint", {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json;charset=utf-8"
+                },
+                body: JSON.stringify(request)
+            })
+            let result = await response.json();
+            if (response.ok) {
+                if (result.runnerStatus.toLowerCase() == "aborted") {
+                    back_status.innerText = "The runner is aborted.";
+                    runner_status.innerText = result.runnerStatus;
+                }
+            }
+            else {
+                if (response.status == 404) back_status.innerText = "The runner is not availble anymore.";
+                else back_status.innerText = "Failed to contact serer, HTTP status code is " + response.status;
+            }
+            pollActive = false;
+            if (curTimer || curTimer === 0) clearTimeout(curTimer);
+            schedulePoll();
         }
 
         window.onload = schedulePoll;
