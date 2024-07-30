@@ -20,6 +20,8 @@ namespace SapmleApplication.Pages
         internal String? _GetAvailableEndpoint;
         internal String RUNNER_COMPLETED = "The runner is completed.";
         internal String RUNNER_RUNNING = "The runner is running in background.";
+        internal Int32 _bkgProgress;
+        internal Boolean _bkgIsCompleted;
 
         public String StartupStatusMessage { get; private set; } = "";
         
@@ -49,6 +51,8 @@ namespace SapmleApplication.Pages
                         else {
                             StartupStatusMessage="The runner is running in background.";
                         }
+                        _bkgIsCompleted = runner.IsBackgroundExecutionCompleted;
+                        _bkgProgress = runner.GetProgress().Progress;
                     }
                 }
             }

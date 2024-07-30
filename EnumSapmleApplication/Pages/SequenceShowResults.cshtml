@@ -43,6 +43,10 @@
                 <span style="margin-left: 10px; font-weight:600">Status:</span> <span id="runner_status">@Model._status</span>
                 <span style="margin-left: 10px; font-weight:600">#Records:</span> <span id="position">@Model._position</span>
             </div>
+            <div>
+                <span style="margin-left: 10px; font-weight:600">Bkg. progress:</span> <span id="bkg_progress">@Model._bkgProgress</span>
+                <span style="margin-left: 10px; font-weight:600">Bkg. is completed:</span> <span id="bkg_completed">@Model._bkgIsCompleted</span>
+            </div>
             <div class="records number">Number</div><div class="records name">Name</div><div class="records name">Data</div>
             <table style="display:block;border-style:solid;border-width:thin;height:15em;overflow:auto">
                 <tbody id="results_table">
@@ -98,6 +102,8 @@
                 runner_status.innerText = result.runnerStatus;
                 pollActive = result.runnerStatus.toLowerCase() == "progressed" || result.runnerStatus.toLowerCase() == "stalled";
                 position.innerText = result.position;
+                bkg_progress.innerText = result.backgroundProgress;
+                bkg_completed.innerText = result.isBackgroundExecutionCompleted;
                 for (item of result.result) {
                     let new_row = results_table.lastElementChild.cloneNode(true);
                     new_row.children[0].innerText = item.number;

@@ -9,5 +9,7 @@ namespace SampleApplication.APIclasses
         public Int32 position { get; set; }
         public Exception? exception { get; set; }
         public TResult? result { get; set; }
+        public Boolean isBackgroundExecutionCompleted { get; set; }
+        public Int32 backgroundProgress { get; set; }
     }
 }
