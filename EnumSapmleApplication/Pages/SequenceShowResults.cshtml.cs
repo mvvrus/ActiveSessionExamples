@@ -40,7 +40,6 @@ namespace SapmleApplication.Pages
                         StartupStatusMessage="Cannot find a runner.";
                     }
                     else {
-                        StartupStatusMessage="The runner is availble.";
                         _params = runner.ExtraData as SequenceParams;
                         IEnumerable<SimSeqData> res_enum;
                         (res_enum,_status,_position,_exception) = 
@@ -49,7 +48,6 @@ namespace SapmleApplication.Pages
                         if(_status.IsFinal()) StartupStatusMessage=RUNNER_COMPLETED;
                         else {
                             StartupStatusMessage="The runner is running in background.";
-                            //TODO Start polling script
                         }
                     }
                 }

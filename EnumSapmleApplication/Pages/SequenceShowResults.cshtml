@@ -1,5 +1,6 @@
 ﻿@page "{key}" 
 @using System.Net
+@using MVVrus.AspNetCore.ActiveSession
 @model SapmleApplication.Pages.SequenceShowResultsModel
 @{
     Layout = "_Layout";
@@ -7,7 +8,7 @@
 }
 <h2 style="margin-bottom: 0.2rem;text-align:center">Sequence runner example. Parameters and results</h2>
 <div style="text-align:center;font-size: 1.1em;">
-    Back-end status: <span id="back_status">@Model.StartupStatusMessage</span>
+    Server status: <span id="back_status">@Model.StartupStatusMessage</span>
 </div>
 
 @if(Model._params!=null) {
@@ -66,12 +67,16 @@
 
 @section Head{
     <script>
+        var pollInterval = @Model._params?.PollInterval.TotalMicroseconds;
         var runner_key = { 
             RunnerNumber: @Model._key.RunnerNumber,
             Generation: @Model._key.Generation,
             _ActiveSessionId: "@(WebUtility.UrlEncode( Model._key.ActiveSessionId))",
             get ActiveSessionId() { return decodeURI(this._ActiveSessionId); }
-        }, Advance = @(Model._params?.PollMaxCount?.ToString()??"null")
+        }, 
+        Advance = @(Model._params?.PollMaxCount?.ToString()??"null"),
+        pollInterval = @Model._params?.PollInterval.TotalMilliseconds,
+        pollActive=@(Model._status.IsFinal()?"false":"true");
        
         async function getAvailable()
         {
@@ -91,6 +96,7 @@
             if (responce.ok) 
             {
                 runner_status.innerText = result.runnerStatus;
+                pollActive = result.runnerStatus.toLowerCase() == "progressed" || result.runnerStatus.toLowerCase() == "stalled";
                 position.innerText = result.position;
                 for (item of result.result) {
                     let new_row = results_table.lastElementChild.cloneNode(true);
@@ -100,13 +106,22 @@
                     results_table.append(new_row);
                     results_table.lastElementChild.scrollIntoView();
                 }
+                schedulePoll();
+                if (!pollActive) back_status.innerText = "@Model.RUNNER_COMPLETED";
             }
             else {
-                if (responce.status == 404) back_status.innerText = "The runner is no more availble.";
-                else back_status.innerText = "Failed to contact back-end.";
+                if (responce.status == 404) back_status.innerText = "The runner is not availble anymore.";
+                else back_status.innerText = "Failed to contact serer, HTTP status code is " + responce.status;
             }
             test_result.innerText = JSON.stringify(result);
         }
+
+        function schedulePoll() {
+            if (pollActive) setTimeout(getAvailable, pollInterval);
+        }
+
+        window.onload = schedulePoll;
+
     </script>
     <style>
         div.records {display:inline-block; font-weight:600}
