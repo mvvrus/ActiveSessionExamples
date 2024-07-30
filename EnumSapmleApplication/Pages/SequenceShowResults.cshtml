@@ -8,7 +8,11 @@
 }
 <h2 style="margin-bottom: 0.2rem;text-align:center">Sequence runner example. Parameters and results</h2>
 <div style="text-align:center;font-size: 1.1em;">
-    Server status: <span id="back_status">@Model.StartupStatusMessage</span>
+    <span class="annotation">Runner number:</span><span>@Model._key.RunnerNumber</span>
+    <span class="annotation">Active Session:</span><span>@Model._key.ActiveSessionId:@Model._key.Generation</span>
+</div>
+<div style="text-align:center;font-size: 1.1em;">
+    <span class="annotation">Server status:</span> <span id="back_status">@Model.StartupStatusMessage</span>
 </div>
 
 @if(Model._params!=null) {
@@ -59,12 +63,6 @@
                     }
                 </tbody>
             </table>
-            <div>
-                <button type="button" onclick=getAvailable()>Test</button>
-            </div>
-            <div style="width:10em;height:10em">
-                <textarea id="test_result"></textarea>
-            </div>
         </div>
     </div>
 }
@@ -119,7 +117,6 @@
                 if (responce.status == 404) back_status.innerText = "The runner is not availble anymore.";
                 else back_status.innerText = "Failed to contact serer, HTTP status code is " + responce.status;
             }
-            test_result.innerText = JSON.stringify(result);
         }
 
         function schedulePoll() {
@@ -134,5 +131,6 @@
         td.number, td.name, td.data {min-width: 5em}
         div.name, div.data {min-width: 5.5em}
         div.number {padding-left:0.2em;min-width: 5.3em}
+        span.annotation {font-weight:600}
     </style>
 }

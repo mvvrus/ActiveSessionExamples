@@ -50,12 +50,12 @@
             @{
                 List<String>? errors = Model.CustomDisplayValidationErrors();
                 if(errors!=null) {
-                    <h3>Input validation errors found:</h3>
-                    <ul style="color:red">
-                        @foreach(String error in errors) {
-                            <li>@error</li>
+                            <h3>Input validation errors found:</h3>
+                            <ul style="color:red">
+                                @foreach(String error in errors) {
+                                    <li>@error</li>
                     }
-                        </ul>
+                                </ul>
                 }
             }
         </div>
@@ -100,5 +100,6 @@
             if (max_stage <= 0) rem_stage_btn.setAttribute("disabled","");
         }
 
+        window.onload = () => {Input_StartCount.select(); }
     </script>
 }

@@ -4,10 +4,18 @@
     Layout = "_Layout";
     ViewData["Title"]="ActiveSession samples";
 }
-    <h1>Sample pages:</h1>
-    <div>
-        <ul>
-            <li><a asp-page="/SequenceAdapterParams" asp-route-mode="sync">EnumAdapter sample</a></li>
-        </ul>
-    </div>
-    
+<div style="text-align:center;font-size: 1.1em; margin-top:1.2em">
+    <span class="annotation">Current ActiveSession</span>:<span>@Model._activeSession!.Id:@Model._activeSession.Generation</span>
+</div>
+<div>
+    <ul>
+        <li><a asp-page="/SequenceAdapterParams" asp-route-mode="sync" target="_blank">EnumAdapter sample</a></li>
+    </ul>
+</div>
+
+ @section Head{
+    <style>
+        span.annotation {font-weight:600}
+    </style>
+ }
+

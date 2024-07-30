@@ -113,7 +113,7 @@ namespace SapmleApplication.Pages
             [Required]
             [Range(1, 40)]
             [DisplayName("Records to fetch at start:")]
-            public Int32? StartCount { get; set; } = 20;
+            public Int32? StartCount { get; set; } = 10;
         }
 
         public class BindStage
