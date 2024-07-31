@@ -44,15 +44,18 @@ namespace SapmleApplication.Pages
         {
             if(ModelState.IsValid) {
                 SequenceParams seq_params=MakeSequenceParams();
-                //seq_params
                 ExtRunnerKey key;
                 IRunner runner;
                 int runner_number;
                 IActiveSession session= HttpContext.GetActiveSession();
                 switch(Mode) {
                     case SequenceParams.SyncMode.sync:
-                        IEnumerable<SimSeqData> source = new SyncDelayedEnumerble<SimSeqData>(seq_params.Stages, new SimSeqDataProducer().Sample);
-                        (runner, runner_number)= session.CreateSequenceRunner(source, HttpContext);
+                        IEnumerable<SimSeqData> sync_source = new SyncDelayedEnumerble<SimSeqData>(seq_params.Stages, new SimSeqDataProducer().Sample);
+                        (runner, runner_number)= session.CreateSequenceRunner(sync_source, HttpContext);
+                        break;
+                    case SequenceParams.SyncMode.async:
+                        IAsyncEnumerable<SimSeqData> async_source = new AsyncDelayedEnumerble<SimSeqData>(seq_params.Stages, new SimSeqDataProducer().Sample);
+                        (runner, runner_number)= session.CreateSequenceRunner(async_source, HttpContext);
                         break;
                     default:
                         return StatusCode(400);
