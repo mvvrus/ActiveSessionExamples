@@ -63,7 +63,11 @@
                     }
                 </tbody>
             </table>
-            <div>
+            <div style="margin-top:0.5em">
+                <input type="checkbox" id="scroll_to_last" name="scroll_to_last" checked />
+                <label for="scroll_to_last">Scroll to the last fetched record</label>
+            </div>
+            <div style="margin-top:0.5em">
                 <button type="button" id="abort_btn" onclick="abort()">Abort</button>
             </div>
         </div>
@@ -113,7 +117,7 @@
                     new_row.children[1].innerText = item.name;
                     new_row.children[2].innerText = item.data;
                     results_table.append(new_row);
-                    results_table.lastElementChild.scrollIntoView();
+                    if (scroll_to_last.checked) results_table.lastElementChild.scrollIntoView();
                 }
                 if (!pollActive) back_status.innerText = "@Model.RUNNER_COMPLETED";
             }
