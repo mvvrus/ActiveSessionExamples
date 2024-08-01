@@ -165,6 +165,20 @@
         }
 
         window.onload = schedulePoll;
+        window.onunload = function () {
+            let request = {
+                RunnerKey: runner_key,
+            }
+            fetch("@Model._AbortEndpoint", {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json;charset=utf-8"
+                },
+                keepalive: true,
+                body: JSON.stringify(request)
+            });
+
+        }
 
     </script>
     <style>
