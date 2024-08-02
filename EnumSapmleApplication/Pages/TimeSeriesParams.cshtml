@@ -1,0 +1,16 @@
+﻿@page
+@model SampleApplication.Pages.TimeSeriesParamsModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"]="Enter parameters";
+}
+
+<div>
+    <h2 style="text-align:center">Enter parameters for running time-series runner example.</h2>
+    <form asp-page="/TimeSeriesParams" style="padding-left:10px; width:max-content">
+        <div><label asp-for="Interval"></label> <input asp-for="Interval" /> <span style="color:red" asp-validation-for="Interval"></span> </div>
+        <div>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+</div>
