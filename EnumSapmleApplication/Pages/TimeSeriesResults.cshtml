@@ -1,0 +1,123 @@
+﻿@page "{key}"
+@using System.Net
+@using MVVrus.AspNetCore.ActiveSession
+@model SampleApplication.Pages.TimeSeriesResultsModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"]="Sequence runners statistics.";
+}
+<h2 style="margin-bottom: 0.2rem;text-align:center">Time series runner example. Number of sequence runners active vs time.</h2>
+<div>
+    <h3 style="text-align:center">The collecting runner status.</h3>
+    <div>
+        <span style="margin-left: 10px; font-weight:600">Status:</span> <span id="runner_status">@Model._status</span>
+        <span style="margin-left: 10px; font-weight:600">#Records:</span> <span id="position">@Model._position</span>
+    </div>
+    <div>
+        <span style="margin-left: 10px; font-weight:600">Bkg. progress:</span> <span id="bkg_progress">@Model._bkgProgress</span>
+        <span style="margin-left: 10px; font-weight:600">Bkg. is completed:</span> <span id="bkg_completed">@Model._bkgIsCompleted</span>
+    </div>
+    <div style="margin-top:0.5em">
+        <div class="records time">Time</div><div class="records count">Count</div>
+    </div>
+    <table style="display:block;border-style:solid;border-width:thin;height:15em;overflow:auto;width:max-content">
+        <tbody id="results_table">
+            @for(int row = 0; row<Model._position; row++) {
+                <tr>
+                    <td class="records time">@(Model._results[row].Time.ToString("HH:mm:ss"))</td>
+                    <td class="records count">@Model._results[row].Count</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div style="margin-top:0.5em">
+        <input type="checkbox" id="scroll_to_last" name="scroll_to_last" checked />
+        <label for="scroll_to_last">Auto-scroll to the last fetched record</label>
+    </div>
+    <div style="margin-top:0.5em;margin-left:10px">
+        ...close the tab to terminate associated runner.
+    </div>
+</div>
+
+@section Head{
+    <script>
+        var pollInterval = @Model._timeoutMsecs;
+        var runner_key = { 
+            RunnerNumber: @Model._key.RunnerNumber,
+            Generation: @Model._key.Generation,
+            _ActiveSessionId: "@(WebUtility.UrlEncode( Model._key.ActiveSessionId))",
+            get ActiveSessionId() { return decodeURI(this._ActiveSessionId); }
+        }, 
+        pollActive=@(Model._status.IsFinal()?"false":"true");
+        var curTimer;
+
+        async function getTimeSeriesRecord() {
+            curTimer = undefined;
+
+            let request = {
+                RunnerKey: runner_key,
+            }
+
+            let response = await fetch("@Model._GetTimeSeriesRecordEndpoint", {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json;charset=utf-8"
+                },
+                body: JSON.stringify(request)
+            })
+            let result = await response.json();
+            if (response.ok) {
+                runner_status.innerText = result.runnerStatus;
+                pollActive = result.runnerStatus.toLowerCase() == "progressed" || result.runnerStatus.toLowerCase() == "stalled";
+                position.innerText = result.position;
+                bkg_progress.innerText = result.backgroundProgress;
+                bkg_completed.innerText = result.isBackgroundExecutionCompleted;
+                for (item of result.result) {
+                    let new_row = results_table.lastElementChild.cloneNode(true);
+                    new_row.children[0].innerText = item.time;
+                    new_row.children[1].innerText = item.count;
+                    results_table.append(new_row);
+                    if (scroll_to_last.checked) results_table.lastElementChild.scrollIntoView();
+                }
+                if (!pollActive) back_status.innerText = "@Model.RUNNER_COMPLETED";
+            }
+            else {
+                if (response.status == 404) back_status.innerText = "The runner is not availble anymore.";
+                else back_status.innerText = "Failed to contact serer, HTTP status code is " + response.status;
+                pollActive = false;
+            }
+            schedulePoll();
+        }
+
+
+        function schedulePoll() {
+            if (pollActive) {
+                curTimer = setTimeout(getTimeSeriesRecord, pollInterval);
+            }
+        }
+
+        window.onload = schedulePoll;
+        window.onunload = function () {
+            let request = {
+                RunnerKey: runner_key,
+            }
+            fetch("@Model._AbortEndpoint", {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json;charset=utf-8"
+                },
+                keepalive: true,
+                body: JSON.stringify(request)
+            });
+
+        }
+    </script>
+
+    <style>
+        div.records {display:inline-block; font-weight:600}
+        td.time, td.count {min-width: 6em}
+        div.count {min-width: 6.5em}
+        div.time {padding-left:0.2em;min-width: 6.3em}
+    </style>
+
+}

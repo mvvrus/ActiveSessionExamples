@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MVVrus.AspNetCore.ActiveSession;
 using MVVrus.AspNetCore.ActiveSession.StdRunner;
+using SampleApplication.Sources;
 using SapmleApplication.Models;
 using SapmleApplication.Sources;
 using System.ComponentModel;
@@ -60,6 +61,7 @@ namespace SapmleApplication.Pages
                     default:
                         return StatusCode(400);
                 }
+                session.GetRegistry().RegisterRunner(runner);
                 key=(session, runner_number);
                 runner.ExtraData=seq_params;
                 return RedirectToPage("SequenceShowResults", new { key });

@@ -65,7 +65,7 @@
             </table>
             <div style="margin-top:0.5em">
                 <input type="checkbox" id="scroll_to_last" name="scroll_to_last" checked />
-                <label for="scroll_to_last">Scroll to the last fetched record</label>
+                <label for="Auto-scroll_to_last">Scroll to the last fetched record</label>
             </div>
             <div style="margin-top:0.5em">
                 <button type="button" id="abort_btn" onclick="abort()">Abort</button>
@@ -76,7 +76,6 @@
 
 @section Head{
     <script>
-        var pollInterval = @Model._params?.PollInterval.TotalMicroseconds;
         var runner_key = { 
             RunnerNumber: @Model._key.RunnerNumber,
             Generation: @Model._key.Generation,
@@ -131,12 +130,10 @@
 
         function schedulePoll() {
             if (pollActive) {
-                console.log("poll")
                 abort_btn.removeAttribute("disabled");
                 curTimer = setTimeout(getAvailable, pollInterval);
             }
             else {
-                console.log("no poll")
                 abort_btn.setAttribute("disabled", "")
             }
         }

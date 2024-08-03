@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using MVVrus.AspNetCore.ActiveSession;
+using MVVrus.AspNetCore.ActiveSession.StdRunner;
+using SampleApplication.Sources;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -19,7 +22,18 @@ namespace SampleApplication.Pages
 
         public ActionResult OnPost() 
         {
-            return Page();
+            if(ModelState.IsValid) {
+                ExtRunnerKey key;
+                IRunner runner;
+                int runner_number;
+                IActiveSession session = HttpContext.GetActiveSession();
+                RunnerRegistry registry = session.GetRegistry();
+                (runner, runner_number)= session.CreateTimeSeriesRunner(() => registry.Count, TimeSpan.FromSeconds(Interval), HttpContext);
+                runner.ExtraData=Interval;
+                key=(session, runner_number);
+                return RedirectToPage("TimeSeriesResults", new { key });
+            }
+            else return Page();
         }
     }
 }
