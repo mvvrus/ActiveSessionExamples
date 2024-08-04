@@ -58,7 +58,8 @@
                 RunnerKey: runner_key,
             }
 
-            let response = await fetch("@Model._GetTimeSeriesRecordEndpoint", {
+            let fetched_count = 0;
+            let response = await fetch("@Model._GetTimeSeriesAvailRecordsEndpoint", {
                 method: "POST",
                 headers: {
                     "Content-type": "application/json;charset=utf-8"
@@ -73,6 +74,7 @@
                 bkg_progress.innerText = result.backgroundProgress;
                 bkg_completed.innerText = result.isBackgroundExecutionCompleted;
                 for (item of result.result) {
+                    fetched_count++;
                     let new_row = results_table.lastElementChild.cloneNode(true);
                     new_row.children[0].innerText = item.time;
                     new_row.children[1].innerText = item.count;
@@ -85,6 +87,37 @@
                 if (response.status == 404) back_status.innerText = "The runner is not availble anymore.";
                 else back_status.innerText = "Failed to contact serer, HTTP status code is " + response.status;
                 pollActive = false;
+            }
+
+            if (fetched_count==0 && pollActive) {
+                response = await fetch("@Model._GetTimeSeriesRecordEndpoint", {
+                    method: "POST",
+                    headers: {
+                        "Content-type": "application/json;charset=utf-8"
+                    },
+                    body: JSON.stringify(request)
+                })
+                result = await response.json();
+                if (response.ok) {
+                    runner_status.innerText = result.runnerStatus;
+                    pollActive = result.runnerStatus.toLowerCase() == "progressed" || result.runnerStatus.toLowerCase() == "stalled";
+                    position.innerText = result.position;
+                    bkg_progress.innerText = result.backgroundProgress;
+                    bkg_completed.innerText = result.isBackgroundExecutionCompleted;
+                    for (item of result.result) {
+                        let new_row = results_table.lastElementChild.cloneNode(true);
+                        new_row.children[0].innerText = item.time;
+                        new_row.children[1].innerText = item.count;
+                        results_table.append(new_row);
+                        if (scroll_to_last.checked) results_table.lastElementChild.scrollIntoView();
+                    }
+                    if (!pollActive) back_status.innerText = "@Model.RUNNER_COMPLETED";
+                }
+                else {
+                    if (response.status == 404) back_status.innerText = "The runner is not availble anymore.";
+                    else back_status.innerText = "Failed to contact serer, HTTP status code is " + response.status;
+                    pollActive = false;
+                }
             }
             schedulePoll();
         }

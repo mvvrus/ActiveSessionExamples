@@ -77,5 +77,28 @@ namespace SampleApplication.APIControllers
             }
             return StatusCode(StatusCodes.Status404NotFound);
         }
+
+        [HttpPost("[action]")]
+        public ActionResult<TimeSeriesRecordResponse> GetTimeSeriesAvailRecords(TimeSeriesRecordRequest Request)
+        {
+            IActiveSession session = HttpContext.GetActiveSession();
+            if(session.IsAvailable && Request.RunnerKey.IsForSession(session)) {
+                var runner = session.GetTimeSeriesRunner<Int32>(Request.RunnerKey.RunnerNumber, HttpContext);
+                if(runner!=null) {
+                    TimeSeriesRecordResponse response = new TimeSeriesRecordResponse();
+                    response.backgroundProgress=runner.GetProgress().Progress;
+                    response.isBackgroundExecutionCompleted=runner.IsBackgroundExecutionCompleted;
+                    RunnerStatus runner_status;
+                    IEnumerable<(DateTime Time, Int32 Count)> results;
+                    (results, runner_status, response.position, response.exception) =
+                        runner.GetAvailable(TraceIdentifier: HttpContext.TraceIdentifier);
+                    response.runnerStatus=runner_status.ToString();
+                    response.result=results.Select(x =>
+                        new TimeSeriesRecordResponse.Measurement(time: x.Time.ToString("HH:mm:ss"), count: x.Count));
+                    return response;
+                }
+            }
+            return StatusCode(StatusCodes.Status404NotFound);
+        }
     }
 }

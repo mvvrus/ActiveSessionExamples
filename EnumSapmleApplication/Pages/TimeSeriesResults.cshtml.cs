@@ -18,7 +18,8 @@ namespace SampleApplication.Pages
         internal Boolean _bkgIsCompleted;
         internal Int32 _timeoutMsecs;
         internal String? _AbortEndpoint;
-        internal String? _GetTimeSeriesRecordEndpoint; //TODO Add API controller and set up the endpoint GetTimeSeriesRecordAsync
+        internal String? _GetTimeSeriesRecordEndpoint;
+        internal String? _GetTimeSeriesAvailRecordsEndpoint;
 
         public String StartupStatusMessage { get; private set; } = "";
 
@@ -26,6 +27,7 @@ namespace SampleApplication.Pages
         {
             _AbortEndpoint=Url.ActionLink("Abort", "Sample");
             _GetTimeSeriesRecordEndpoint=Url.ActionLink("GetTimeSeriesRecord", "Sample");
+            _GetTimeSeriesAvailRecordsEndpoint=Url.ActionLink("GetTimeSeriesAvailRecords", "Sample");
             _key=Key;
             IActiveSession active_session = HttpContext.GetActiveSession();
             if(!active_session.IsAvailable) {
