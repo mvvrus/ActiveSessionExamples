@@ -100,5 +100,25 @@ namespace SampleApplication.APIControllers
             }
             return StatusCode(StatusCodes.Status404NotFound);
         }
+
+        [HttpPost("[action]")]
+        public ActionResult<ObserveAvailableResponse> GetAvailableObserve(ObserveAvailableRequest Request)
+        {
+            IActiveSession session = HttpContext.GetActiveSession();
+            if(session.IsAvailable && Request.RunnerKey.IsForSession(session)) {
+                IRunner<Int32>? runner = session.GetRunner<Int32>(Request.RunnerKey.RunnerNumber, HttpContext);
+                if(runner!=null) {
+                    ObserveAvailableResponse response = new ObserveAvailableResponse();
+                    response.backgroundProgress=runner.GetProgress().Progress;
+                    response.isBackgroundExecutionCompleted=runner.IsBackgroundExecutionCompleted;
+                    RunnerStatus runner_status;
+                    (response.result, runner_status, response.position, response.exception) =
+                        runner.GetAvailable(TraceIdentifier: HttpContext.TraceIdentifier);
+                    response.runnerStatus=runner_status.ToString();
+                    return response;
+                }
+            }
+            return StatusCode(StatusCodes.Status404NotFound);
+        }
     }
 }

@@ -1,0 +1,52 @@
+﻿@page
+@using System.Net
+@model SampleApplication.Pages.ObservationResultsModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"]="Observation of sequence runners count";
+}
+<h2 style="margin-bottom: 0.2rem;text-align:center">Session process runner example.</h2>
+<div style="text-align:center;font-size: 1.1em;">
+    <span class="annotation">Server status:</span> <span id="back_status">@Model.StartupStatusMessage</span>
+</div>
+@if(Model._sessionAvailable) {
+    <div style="text-align:center;font-size: 1.1em;">
+        <span class="annotation">Runner number:</span><span>@Model._key.RunnerNumber</span>
+        <span class="annotation">Active Session:</span><span>@Model._key.ActiveSessionId:@Model._key.Generation</span>
+    </div>
+    <div>
+        <div>
+            <span style="margin-left: 10px; font-weight:600">Seq. runners count:</span> <span id="runner_result">@Model._result</span>
+            <span style="margin-left: 10px; font-weight:600">Current step #:</span> <span id="position">@Model._position</span>
+        </div>
+    </div>
+}
+
+@section Head{
+    <script>
+        var pollInterval = 1000;
+        var runner_key = {
+            RunnerNumber: @Model._key.RunnerNumber,
+            Generation: @Model._key.Generation,
+            _ActiveSessionId: "@(WebUtility.UrlEncode(Model._key.ActiveSessionId))",
+            get ActiveSessionId() { return decodeURI(this._ActiveSessionId); }
+        },
+            pollActive = true;
+        var curTimer;
+
+        window.onunload = function () {
+            let request = {
+                RunnerKey: runner_key,
+            }
+            fetch("@Model._AbortEndpoint", {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json;charset=utf-8"
+                },
+                keepalive: true,
+                body: JSON.stringify(request)
+            });
+        }
+
+    </script>
+}
