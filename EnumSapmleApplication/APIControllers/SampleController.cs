@@ -36,7 +36,7 @@ namespace SampleApplication.APIControllers
         {
             IActiveSession session = HttpContext.GetActiveSession();
             if(session.IsAvailable && Request.RunnerKey.IsForSession(session)) {
-                var runner = session.GetSequenceRunner<SimSeqData>(Request.RunnerKey.RunnerNumber, HttpContext);
+                var runner = session.GetNonTypedRunner(Request.RunnerKey.RunnerNumber, HttpContext);
                 if(runner!=null) {
                     AbortResponse response = new AbortResponse();
                     response.runnerStatus=runner.Abort(HttpContext.TraceIdentifier).ToString();
