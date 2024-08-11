@@ -10,6 +10,10 @@
     <span class="annotation">Server status:</span> <span id="back_status">@Model.StartupStatusMessage</span>
 </div>
 @if(Model._sessionAvailable) {
+    <div>
+        <span style="margin-left: 10px; font-weight:600">Status:</span> <span id="runner_status">@Model._status</span>
+        <span style="margin-left: 10px; font-weight:600">#Records:</span> <span id="position">@Model._position</span>
+    </div>
     <div style="text-align:center;font-size: 1.1em;">
         <span class="annotation">Runner number:</span><span>@Model._key.RunnerNumber</span>
         <span class="annotation">Active Session:</span><span>@Model._key.ActiveSessionId:@Model._key.Generation</span>
@@ -18,6 +22,7 @@
         <div>
             <span style="margin-left: 10px; font-weight:600">Seq. runners count:</span> <span id="runner_result">@Model._result</span>
             <span style="margin-left: 10px; font-weight:600">Current step #:</span> <span id="position">@Model._position</span>
+            <span style="margin-left: 10px; font-weight:600">Poll count:</span> <span id="poll_count">0</span>
         </div>
     </div>
 }
@@ -31,9 +36,49 @@
             _ActiveSessionId: "@(WebUtility.UrlEncode(Model._key.ActiveSessionId))",
             get ActiveSessionId() { return decodeURI(this._ActiveSessionId); }
         },
-            pollActive = true;
+        pollActive = true;
         var curTimer;
+        var count = 0;
 
+        async function getAvailable() {
+            curTimer = undefined;
+
+            let request = {
+                RunnerKey: runner_key,
+            }
+
+            let response = await fetch("@Model._GetAvailableEndpoint", {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json;charset=utf-8"
+                },
+                body: JSON.stringify(request)
+            })
+            let result = await response.json();
+            if (response.ok) {
+                runner_status.innerText = result.runnerStatus;
+                pollActive = result.runnerStatus.toLowerCase() == "progressed" || result.runnerStatus.toLowerCase() == "stalled";
+                position.innerText = result.position;
+                runner_result.innerText = result.result;
+                poll_count.innerText = ++count;
+                if (!pollActive) back_status.innerText = "Runner completed.";
+            }
+            else {
+                if (response.status == 404) back_status.innerText = "The runner is not availble anymore.";
+                else back_status.innerText = "Failed to contact serer, HTTP status code is " + response.status;
+                pollActive = false;
+            }
+            schedulePoll();
+        }
+
+        function schedulePoll() {
+            if (pollActive) {
+                curTimer = setTimeout(getAvailable, pollInterval);
+            }
+        }
+
+
+        window.onload = schedulePoll;
         window.onunload = function () {
             let request = {
                 RunnerKey: runner_key,

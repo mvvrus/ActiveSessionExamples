@@ -7,15 +7,23 @@
     ViewData["Title"]="Sequence runners statistics.";
 }
 <h2 style="margin-bottom: 0.2rem;text-align:center">Time series runner example. Number of sequence runners active vs time.</h2>
-<div>
-    <h3 style="text-align:center">The collecting runner status.</h3>
+<div style="text-align:center;font-size: 1.1em;">
+    <span class="annotation">Runner number:</span><span>@Model._key.RunnerNumber</span>
+    <span class="annotation">Active Session:</span><span>@Model._key.ActiveSessionId:@Model._key.Generation</span>
+</div>
+<div style="text-align:center;font-size: 1.1em;">
+    <span class="annotation">Server status:</span> <span id="back_status">@Model.StartupStatusMessage</span>
+</div>
+
+<div style="margin-left: 10px">
+    <h3>The series collector runner information.</h3>
     <div>
-        <span style="margin-left: 10px; font-weight:600">Status:</span> <span id="runner_status">@Model._status</span>
-        <span style="margin-left: 10px; font-weight:600">#Records:</span> <span id="position">@Model._position</span>
+        <span style="font-weight:600">Status:</span> <span id="runner_status">@Model._status</span>
+        <span style="font-weight:600">#Records:</span> <span id="position">@Model._position</span>
     </div>
     <div>
-        <span style="margin-left: 10px; font-weight:600">Bkg. progress:</span> <span id="bkg_progress">@Model._bkgProgress</span>
-        <span style="margin-left: 10px; font-weight:600">Bkg. is completed:</span> <span id="bkg_completed">@Model._bkgIsCompleted</span>
+        <span style="font-weight:600">Bkg. progress:</span> <span id="bkg_progress">@Model._bkgProgress</span>
+        <span style="font-weight:600">Bkg. is completed:</span> <span id="bkg_completed">@Model._bkgIsCompleted</span>
     </div>
     <div style="margin-top:0.5em">
         <div class="records time">Time</div><div class="records count">Count</div>

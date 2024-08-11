@@ -14,11 +14,13 @@ namespace SampleApplication.Pages
         internal Exception? _exception;
         internal ExtRunnerKey _key;
         internal Boolean _sessionAvailable;
+        internal String? _GetAvailableEndpoint;
         internal String? _AbortEndpoint;
         public String StartupStatusMessage { get; private set; } = "";
 
         public void OnGet()
         {
+            _GetAvailableEndpoint=Url.ActionLink("GetAvailableObserve", "Sample");
             _AbortEndpoint=Url.ActionLink("Abort", "Sample");
             IActiveSession active_session = HttpContext.GetActiveSession();
             if(!active_session.IsAvailable) {

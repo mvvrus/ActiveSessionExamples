@@ -19,7 +19,7 @@ namespace SampleApplication.Sources
 
         public void Dispose()
         {
-            CancellationTokenSource? old_cts=Volatile.Read(in _cts); 
+            CancellationTokenSource? old_cts= Interlocked.Exchange(ref _cts, null);
             old_cts?.Cancel();
             old_cts?.Dispose();
         }
