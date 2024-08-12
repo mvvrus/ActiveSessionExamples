@@ -5,24 +5,40 @@
     Layout = "_Layout";
     ViewData["Title"]="Observation of sequence runners count";
 }
-<h2 style="margin-bottom: 0.2rem;text-align:center">Session process runner example.</h2>
+<h2 style="margin-bottom: 0.2rem;text-align:center">Session process runner example. Monitoring sequence runners.</h2>
+<div style="text-align:center;font-size: 1.1em;">
+    <span class="annotation">Observation runner number:</span><span>@Model._key.RunnerNumber</span>
+    <span class="annotation">Active Session:</span><span>@Model._key.ActiveSessionId:@Model._key.Generation</span>
+</div>
 <div style="text-align:center;font-size: 1.1em;">
     <span class="annotation">Server status:</span> <span id="back_status">@Model.StartupStatusMessage</span>
 </div>
 @if(Model._sessionAvailable) {
-    <div>
-        <span style="margin-left: 10px; font-weight:600">Status:</span> <span id="runner_status">@Model._status</span>
-        <span style="margin-left: 10px; font-weight:600">#Records:</span> <span id="position">@Model._position</span>
-    </div>
-    <div style="text-align:center;font-size: 1.1em;">
-        <span class="annotation">Runner number:</span><span>@Model._key.RunnerNumber</span>
-        <span class="annotation">Active Session:</span><span>@Model._key.ActiveSessionId:@Model._key.Generation</span>
-    </div>
-    <div>
-        <div>
-            <span style="margin-left: 10px; font-weight:600">Seq. runners count:</span> <span id="runner_result">@Model._result</span>
-            <span style="margin-left: 10px; font-weight:600">Current step #:</span> <span id="position">@Model._position</span>
-            <span style="margin-left: 10px; font-weight:600">Poll count:</span> <span id="poll_count">0</span>
+    <div style="display:flex">
+        <div style="display:inline-block; min-width:25rem">
+            <h3>Poll observation results.</h3>
+            <div>
+                <span style="margin-left: 10px; font-weight:600"># of active seq. runners:</span> <span id="runner_result">@Model._result</span>
+                <span style="margin-left: 10px; font-weight:600"># of changes:</span> <span id="position">@(Model._position-1)</span>
+            </div>
+            <div>
+                <span style="margin-left: 10px; font-weight:600">Poll #:</span> <span id="poll_count">0</span>
+                <span style="margin-left: 10px; font-weight:600">Last observation runner status:</span> <span id="runner_status">@Model._status</span>
+            </div>
+        </div>
+        <div style="display:inline-block;">
+            <h3>Triggers.</h3>
+            <table>
+                <thead>
+                    <tr><th class="n">#</th><th class="threshold">Fires at</th><th class="state">State</th>
+                    <th class="timeout">Timeout(s)</th><th class="action">Action</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="n">0</td><td><input type="number" class="threshold" /></td><td class="state">Idle</td>
+                    <td><input type="number"class="timeout" /></td><td class="action"><button type="button" onclick="()">Start</button></td></tr>
+                </tbody>
+
+            </table>
         </div>
     </div>
 }
@@ -54,21 +70,38 @@
                 },
                 body: JSON.stringify(request)
             })
-            let result = await response.json();
             if (response.ok) {
+                let result = await response.json();
                 runner_status.innerText = result.runnerStatus;
                 pollActive = result.runnerStatus.toLowerCase() == "progressed" || result.runnerStatus.toLowerCase() == "stalled";
-                position.innerText = result.position;
+                position.innerText = result.position-1;
                 runner_result.innerText = result.result;
                 poll_count.innerText = ++count;
                 if (!pollActive) back_status.innerText = "Runner completed.";
             }
             else {
-                if (response.status == 404) back_status.innerText = "The runner is not availble anymore.";
+                if (response.status == 410) back_status.innerText = "The runner is not availble anymore.";
                 else back_status.innerText = "Failed to contact serer, HTTP status code is " + response.status;
                 pollActive = false;
             }
             schedulePoll();
+        }
+
+        async function getRequired(target, timeout_secs, slot) {
+            let request = {
+                RunnerKey: runner_key,
+                Target:target,
+                timeout_secs:timeout_secs
+            }
+            let response = await fetch("@Model._GetRequiredEndpoint", {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json;charset=utf-8"
+                },
+                body: JSON.stringify(request)
+            })
+
+
         }
 
         function schedulePoll() {
@@ -76,7 +109,6 @@
                 curTimer = setTimeout(getAvailable, pollInterval);
             }
         }
-
 
         window.onload = schedulePoll;
         window.onunload = function () {
@@ -93,5 +125,34 @@
             });
         }
 
+        function triggerButtonClick(event) {
+            triggerButton = event.currentTarget;
+            row = triggerButton.closest("tr");
+            state = row.querySelector(".state").innerText.toLowerCase();
+            if (state == "idle") startTriggerWait(row);
+            else if (state == "waiting") cancelTriggeredWait(row);
+        }
+
+        function setIdle(row) {
+            row.querySelector(".state").innerText = "Idle";
+            row.querySelector(".action").removeAttribute("disabled");
+        }
+
+        function startTriggerWait(row) {
+
+        }
+
+        function cancelTriggerWait() {
+
+        }
+
     </script>
+    <style>
+        table {border:thin solid lightgray;border-collapse:collapse;}
+        th, td {padding:1px 5px; border:thin solid lightgray;border-collapse:collapse; min-width:6em}
+        th.n, td.n {min-width:1em}
+        th {background:#eee}
+        td {text-align:center}
+        td>input {width:3em}
+    </style>
 }

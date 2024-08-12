@@ -23,12 +23,12 @@ namespace SampleApplication.APIControllers
                     response.isBackgroundExecutionCompleted=runner.IsBackgroundExecutionCompleted;
                     RunnerStatus runner_status;
                     (response.result, runner_status, response.position, response.exception) =
-                        runner.GetAvailable(Request.Advance??Int32.MaxValue, TraceIdentifier:HttpContext.TraceIdentifier);
+                        runner.GetAvailable(Request.Advance??Int32.MaxValue, TraceIdentifier: HttpContext.TraceIdentifier);
                     response.runnerStatus=runner_status.ToString();
                     return response;
                 }
             }
-            return StatusCode(StatusCodes.Status404NotFound);
+            return StatusCode(StatusCodes.Status410Gone);
         }
 
         [HttpPost("[action]")]
@@ -41,10 +41,10 @@ namespace SampleApplication.APIControllers
                     AbortResponse response = new AbortResponse();
                     response.runnerStatus=runner.Abort(HttpContext.TraceIdentifier).ToString();
                     return response;
-                    
+
                 }
             }
-            return StatusCode(StatusCodes.Status404NotFound);
+            return StatusCode(StatusCodes.Status410Gone);
         }
 
         [HttpPost("[action]")]
@@ -66,16 +66,16 @@ namespace SampleApplication.APIControllers
                     response.backgroundProgress=runner.GetProgress().Progress;
                     response.isBackgroundExecutionCompleted=runner.IsBackgroundExecutionCompleted;
                     RunnerStatus runner_status;
-                    IEnumerable<(DateTime Time,Int32 Count)> results;
+                    IEnumerable<(DateTime Time, Int32 Count)> results;
                     (results, runner_status, response.position, response.exception) =
                         await runner.GetRequiredAsync(1, TraceIdentifier: HttpContext.TraceIdentifier);
                     response.runnerStatus=runner_status.ToString();
-                    response.result=results.Select(x=> 
-                        new TimeSeriesRecordResponse.Measurement(time:x.Time.ToString("HH:mm:ss"),count:x.Count ));
+                    response.result=results.Select(x =>
+                        new TimeSeriesRecordResponse.Measurement(time: x.Time.ToString("HH:mm:ss"), count: x.Count));
                     return response;
                 }
             }
-            return StatusCode(StatusCodes.Status404NotFound);
+            return StatusCode(StatusCodes.Status410Gone);
         }
 
         [HttpPost("[action]")]
@@ -98,7 +98,7 @@ namespace SampleApplication.APIControllers
                     return response;
                 }
             }
-            return StatusCode(StatusCodes.Status404NotFound);
+            return StatusCode(StatusCodes.Status410Gone);
         }
 
         [HttpPost("[action]")]
@@ -118,7 +118,46 @@ namespace SampleApplication.APIControllers
                     return response;
                 }
             }
-            return StatusCode(StatusCodes.Status404NotFound);
+            return StatusCode(StatusCodes.Status410Gone);
+        }
+
+        [HttpPost("[action]")]
+        public async Task<ActionResult<ObserveAvailableResponse>> GetRequiredObserveAsync(ObserveRequiredRequest Request)
+        {
+            IActiveSession session = HttpContext.GetActiveSession();
+            if(session.IsAvailable && Request.RunnerKey.IsForSession(session)) {
+                IRunner<Int32>? runner = session.GetRunner<Int32>(Request.RunnerKey.RunnerNumber, HttpContext);
+                if(runner!=null) {
+                    ObserveRequiredResponse response = new ObserveRequiredResponse();
+                    response.backgroundProgress=runner.GetProgress().Progress;
+                    response.isBackgroundExecutionCompleted=runner.IsBackgroundExecutionCompleted;
+                    response.Slot=Request.Slot;
+                    RunnerStatus runner_status;
+                    try {
+                        CancellationTokenSource? effective_cts = null;
+                        CancellationTokenSource timeout_cts = new CancellationTokenSource(Request.TimeoutSecs*1000);
+                        effective_cts=CancellationTokenSource.CreateLinkedTokenSource(timeout_cts.Token, HttpContext.RequestAborted);
+                        try {
+                            (response.result, runner_status, response.position, response.exception) =
+                                await runner.GetRequiredAsync(Request.Target, effective_cts.Token, 0, HttpContext.TraceIdentifier);
+                        }
+                        catch (OperationCanceledException) {
+                            runner.Abort();
+                            return StatusCode(StatusCodes.Status408RequestTimeout);
+                        }
+                        finally {
+                            effective_cts?.Dispose();
+                            timeout_cts.Dispose();
+                        }
+                        response.runnerStatus=runner_status.ToString();
+                        return response;
+                    }
+                    catch(ArgumentException) {
+                        return StatusCode(StatusCodes.Status422UnprocessableEntity);
+                    }
+                }
+            }
+            return StatusCode(StatusCodes.Status410Gone);
         }
     }
 }

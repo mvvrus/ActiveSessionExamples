@@ -17,7 +17,7 @@
 
 @if(Model._params!=null) {
     <div style="display:flex">
-        <div id="left_pane" style="display:inline-block; min-width:30%">
+        <div style="display:inline-block; min-width:30%">
             <h3>Example parameters.</h3>
             <div style ="background-color: lightgray;">
                 <div style="margin-bottom:0.2em"><b>Mode</b>:@(Model._params.Mode)</div>
@@ -102,9 +102,9 @@
                 },
                 body: JSON.stringify(request)
             })
-            let result = await response.json();
             if (response.ok) 
             {
+                let result = await response.json();
                 runner_status.innerText = result.runnerStatus;
                 pollActive = result.runnerStatus.toLowerCase() == "progressed" || result.runnerStatus.toLowerCase() == "stalled";
                 position.innerText = result.position;
@@ -121,7 +121,7 @@
                 if (!pollActive) back_status.innerText = "@Model.RUNNER_COMPLETED";
             }
             else {
-                if (response.status == 404) back_status.innerText = "The runner is not availble anymore.";
+                if (response.status == 410) back_status.innerText = "The runner is not availble anymore.";
                 else back_status.innerText = "Failed to contact serer, HTTP status code is " + response.status;
                 pollActive = false;
             }
@@ -157,7 +157,7 @@
                 }
             }
             else {
-                if (response.status == 404) back_status.innerText = "The runner is not availble anymore.";
+                if (response.status == 410) back_status.innerText = "The runner is not availble anymore.";
                 else back_status.innerText = "Failed to contact serer, HTTP status code is " + response.status;
             }
             pollActive = false;

@@ -92,7 +92,7 @@
                 if (!pollActive) back_status.innerText = "@Model.RUNNER_COMPLETED";
             }
             else {
-                if (response.status == 404) back_status.innerText = "The runner is not availble anymore.";
+                if (response.status == 410) back_status.innerText = "The runner is not availble anymore.";
                 else back_status.innerText = "Failed to contact serer, HTTP status code is " + response.status;
                 pollActive = false;
             }
@@ -105,8 +105,8 @@
                     },
                     body: JSON.stringify(request)
                 })
-                result = await response.json();
                 if (response.ok) {
+                    result = await response.json();
                     runner_status.innerText = result.runnerStatus;
                     pollActive = result.runnerStatus.toLowerCase() == "progressed" || result.runnerStatus.toLowerCase() == "stalled";
                     position.innerText = result.position;
@@ -122,7 +122,7 @@
                     if (!pollActive) back_status.innerText = "@Model.RUNNER_COMPLETED";
                 }
                 else {
-                    if (response.status == 404) back_status.innerText = "The runner is not availble anymore.";
+                    if (response.status == 410) back_status.innerText = "The runner is not availble anymore.";
                     else back_status.innerText = "Failed to contact serer, HTTP status code is " + response.status;
                     pollActive = false;
                 }

@@ -56,7 +56,7 @@ namespace SapmleApplication.Pages
                         break;
                     case SequenceParams.SyncMode.async:
                         IAsyncEnumerable<SimSeqData> async_source = new AsyncDelayedEnumerble<SimSeqData>(seq_params.Stages, new SimSeqDataProducer().Sample);
-                        (runner, runner_number)= session.CreateSequenceRunner(async_source, HttpContext);
+                        (runner, runner_number) = session.CreateSequenceRunner(async_source, HttpContext);
                         break;
                     default:
                         return StatusCode(400);
