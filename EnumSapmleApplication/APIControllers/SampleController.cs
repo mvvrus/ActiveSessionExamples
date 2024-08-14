@@ -137,13 +137,15 @@ namespace SampleApplication.APIControllers
                         CancellationTokenSource? effective_cts = null;
                         CancellationTokenSource timeout_cts = new CancellationTokenSource(Request.TimeoutSecs*1000);
                         effective_cts=CancellationTokenSource.CreateLinkedTokenSource(timeout_cts.Token, HttpContext.RequestAborted);
+                        int advance=0, start_pos=Request.Target;
+                        if(start_pos<0) { (advance, start_pos)=(start_pos, advance); }
                         try {
                             (response.result, runner_status, response.position, response.exception) =
-                                await runner.GetRequiredAsync(Request.Target, effective_cts.Token, 0, HttpContext.TraceIdentifier);
+                                await runner.GetRequiredAsync(advance, effective_cts.Token, start_pos, HttpContext.TraceIdentifier);
                         }
                         catch (OperationCanceledException) {
-                            runner.Abort();
-                            return StatusCode(StatusCodes.Status408RequestTimeout);
+                            return StatusCode(StatusCodes.Status204NoContent);
+//                            return StatusCode(StatusCodes.Status408RequestTimeout);
                         }
                         finally {
                             effective_cts?.Dispose();

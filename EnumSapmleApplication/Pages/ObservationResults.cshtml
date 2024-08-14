@@ -1,7 +1,7 @@
-﻿@page
+﻿@page 
 @using System.Net
 @model SampleApplication.Pages.ObservationResultsModel
-@{
+@{ 
     Layout = "_Layout";
     ViewData["Title"]="Observation of sequence runners count";
 }
@@ -33,9 +33,15 @@
                     <tr><th class="n">#</th><th class="threshold">Fires at</th><th class="state">State</th>
                     <th class="timeout">Timeout(s)</th><th class="action">Action</th></tr>
                 </thead>
-                <tbody>
-                    <tr><td class="n">0</td><td><input type="number" class="threshold" /></td><td class="state">Idle</td>
-                    <td><input type="number"class="timeout" /></td><td class="action"><button type="button" onclick="()">Start</button></td></tr>
+                <tbody id="triggers">
+                    @for(int i=1; i<=3; i++) {
+                        <tr>
+                            <td class="n">@i</td>
+                            <td><input type="number" class="threshold" value="@Model._position" /></td>
+                            <td class="state">Ready</td><td><input type="number" class="timeout" value="600"/></td>
+                            <td class="action"><button type="button" onclick="triggerButtonClick(event)">Start</button></td>
+                        </tr>
+                    }
                 </tbody>
 
             </table>
@@ -52,7 +58,7 @@
             _ActiveSessionId: "@(WebUtility.UrlEncode(Model._key.ActiveSessionId))",
             get ActiveSessionId() { return decodeURI(this._ActiveSessionId); }
         },
-        pollActive = true;
+        runnerAvailable = true;
         var curTimer;
         var count = 0;
 
@@ -73,39 +79,22 @@
             if (response.ok) {
                 let result = await response.json();
                 runner_status.innerText = result.runnerStatus;
-                pollActive = result.runnerStatus.toLowerCase() == "progressed" || result.runnerStatus.toLowerCase() == "stalled";
+                if (!(result.runnerStatus.toLowerCase() == "progressed" || result.runnerStatus.toLowerCase() == "stalled")) makeRunnerUnavailable();
                 position.innerText = result.position-1;
                 runner_result.innerText = result.result;
                 poll_count.innerText = ++count;
-                if (!pollActive) back_status.innerText = "Runner completed.";
+                if (!runnerAvailable) back_status.innerText = "Runner completed.";
             }
             else {
                 if (response.status == 410) back_status.innerText = "The runner is not availble anymore.";
                 else back_status.innerText = "Failed to contact serer, HTTP status code is " + response.status;
-                pollActive = false;
+                makeRunnerUnavailable();
             }
             schedulePoll();
         }
 
-        async function getRequired(target, timeout_secs, slot) {
-            let request = {
-                RunnerKey: runner_key,
-                Target:target,
-                timeout_secs:timeout_secs
-            }
-            let response = await fetch("@Model._GetRequiredEndpoint", {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json;charset=utf-8"
-                },
-                body: JSON.stringify(request)
-            })
-
-
-        }
-
         function schedulePoll() {
-            if (pollActive) {
+            if (runnerAvailable) {
                 curTimer = setTimeout(getAvailable, pollInterval);
             }
         }
@@ -125,25 +114,115 @@
             });
         }
 
-        function triggerButtonClick(event) {
-            triggerButton = event.currentTarget;
-            row = triggerButton.closest("tr");
-            state = row.querySelector(".state").innerText.toLowerCase();
-            if (state == "idle") startTriggerWait(row);
-            else if (state == "waiting") cancelTriggeredWait(row);
+        function assureRowContext(row) {
+            if (row.context == undefined) {
+                row.context = {
+                    name: "Row " + row.querySelector(".n").innerText,
+                    state: 0
+                }
+            }
         }
 
-        function setIdle(row) {
-            row.querySelector(".state").innerText = "Idle";
-            row.querySelector(".action").removeAttribute("disabled");
+        function triggerButtonClick(event) {
+            /*
+            State codes
+            -1 - Unavalable
+            0 - Idle/Ready
+            1 - Waiting
+            2 - Displaying state/result
+            */
+            triggerButton = event.currentTarget;
+            row = triggerButton.closest("tr");
+            assureRowContext(row);
+            switch (row.context.state) {
+                case 0: startTriggerWait(row);
+                    break;
+                case 1: cancelTriggerWait(row);
+                    break;
+                case 2: reset(row);
+                    break;
+            }
         }
 
         function startTriggerWait(row) {
-
+            let request = {
+                RunnerKey: runner_key,
+                Target: +row.querySelector(".threshold").value+1,
+                TimeoutSecs: +row.querySelector(".timeout").value,
+                Slot: +row.querySelector(".n").innerText
+            }
+            row.querySelector(".state").innerText = "Waiting";
+            row.querySelector(".threshold").setAttribute("disabled", "");
+            row.querySelector(".timeout").setAttribute("disabled", "");
+            row.querySelector(".action>button").innerText = "Abort";
+            let abort_controller = new AbortController;
+            row.context.state = 1;
+            row.context.abortController = abort_controller;
+            let fetch_promise = fetch("@Model._GetRequiredEndpoint", {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json;charset=utf-8"
+                },
+                signal: abort_controller.signal,
+                body: JSON.stringify(request)
+            })
+            fetch_promise
+                .then((response) => {
+                    if (response.status == 200) return response.text.then((result) => {setResult(row, result.runnerStatus); alert(result); });
+                    else 
+                    setResult(row, response.status);/* alert("fulfilled");*/ 
+                })
+                .catch((error) => { 
+                    if (error instanceof AbortError) {
+                        setResult(row, "Aborted");
+                    }
+                    else { 
+                        setResult(row, error); alert("rejected"); 
+                    } 
+                });
         }
 
-        function cancelTriggerWait() {
+        function cancelTriggerWait(row) {
+            row.context.abortController.abort();
+            setResult(row, "Canceled");
+        }
 
+        function setResult(row, result) {
+            row.context.state = 2;
+            row.querySelector(".state").innerText = result;
+            row.querySelector(".threshold").setAttribute("disabled", "");
+            row.querySelector(".timeout").setAttribute("disabled", "");
+            row.querySelector(".action>button").innerText = "Reset";
+        }
+
+        function reset(row) {
+            if (runnerAvailable) {
+                row.context.state = 0;
+                row.querySelector(".state").innerText = "Ready";
+                row.querySelector(".action").removeAttribute("disabled");
+                row.querySelector(".threshold").removeAttribute("disabled");
+                row.querySelector(".timeout").removeAttribute("disabled");
+                row.querySelector(".action>button").innerText = "Start";
+            }
+            else {
+                row.context.state = -1;
+                row.querySelector(".state").innerText = "Unavailable";
+                row.querySelector(".action").setAttribute("disabled", "");
+                row.querySelector(".threshold").setAttribute("disabled", "");
+                row.querySelector(".timeout").setAttribute("disabled", "");
+                row.querySelector(".action>button").innerText = "Start";
+                row.querySelector(".action>button").setAttribute("disabled", "");
+
+            }
+        }
+
+        function makeRunnerUnavailable() {
+            runnerAvailable = false;
+            for (row of triggers.querySelectorAll("tr")) {
+                assureRowContext(row);
+                if (row.context.state == 1) cancelTriggerWait(row);
+                if (row.context.state == 0) reset(row);
+            }
         }
 
     </script>
