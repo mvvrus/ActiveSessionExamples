@@ -7,7 +7,7 @@
 }
 <h2 style="margin-bottom: 0.2rem;text-align:center">Session process runner example. Monitoring sequence runners.</h2>
 <div style="text-align:center;font-size: 1.1em;">
-    <span class="annotation">Observation runner number:</span><span>@Model._key.RunnerNumber</span>
+    <span class="annotation">Observing runner number:</span><span>@Model._key.RunnerNumber</span>
     <span class="annotation">Active Session:</span><span>@Model._key.ActiveSessionId:@Model._key.Generation</span>
 </div>
 <div style="text-align:center;font-size: 1.1em;">
@@ -16,14 +16,14 @@
 @if(Model._sessionAvailable) {
     <div style="display:flex">
         <div style="display:inline-block; min-width:25rem">
-            <h3>Poll observation results.</h3>
+            <h3>Results of polling observation .</h3>
             <div>
                 <span style="margin-left: 10px; font-weight:600"># of active seq. runners:</span> <span id="runner_result">@Model._result</span>
                 <span style="margin-left: 10px; font-weight:600"># of changes:</span> <span id="position">@(Model._position-1)</span>
             </div>
             <div>
-                <span style="margin-left: 10px; font-weight:600">Poll #:</span> <span id="poll_count">0</span>
-                <span style="margin-left: 10px; font-weight:600">Last observation runner status:</span> <span id="runner_status">@Model._status</span>
+                <span style="margin-left: 10px; font-weight:600">Last poll #:</span> <span id="poll_count">0</span>
+                <span style="margin-left: 10px; font-weight:600">Last observed runner status:</span> <span id="runner_status">@Model._status</span>
             </div>
         </div>
         <div style="display:inline-block;">
@@ -61,6 +61,7 @@
         runnerAvailable = true;
         var curTimer;
         var count = 0;
+        var change_count = @(Model._position-1);
 
         async function getAvailable() {
             curTimer = undefined;
@@ -80,7 +81,10 @@
                 let result = await response.json();
                 runner_status.innerText = result.runnerStatus;
                 if (!(result.runnerStatus.toLowerCase() == "progressed" || result.runnerStatus.toLowerCase() == "stalled")) makeRunnerUnavailable();
-                position.innerText = result.position-1;
+                let old_change_count = change_count;
+                change_count = result.position - 1;
+                position.innerText = change_count;
+                if (change_count > old_change_count) ajustThresholdPrompts();
                 runner_result.innerText = result.result;
                 poll_count.innerText = ++count;
                 if (!runnerAvailable) back_status.innerText = "Runner completed.";
@@ -144,7 +148,13 @@
             }
         }
 
-        function startTriggerWait(row) {
+        var mapCodes = new Map([
+            [204,"Aborted"],
+            [422,"Invalid"],
+            [410,"Unavailable"]
+        ]);
+
+        async function startTriggerWait(row) {
             let request = {
                 RunnerKey: runner_key,
                 Target: +row.querySelector(".threshold").value+1,
@@ -158,28 +168,31 @@
             let abort_controller = new AbortController;
             row.context.state = 1;
             row.context.abortController = abort_controller;
-            let fetch_promise = fetch("@Model._GetRequiredEndpoint", {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json;charset=utf-8"
-                },
-                signal: abort_controller.signal,
-                body: JSON.stringify(request)
-            })
-            fetch_promise
-                .then((response) => {
-                    if (response.status == 200) return response.text.then((result) => {setResult(row, result.runnerStatus); alert(result); });
-                    else 
-                    setResult(row, response.status);/* alert("fulfilled");*/ 
-                })
-                .catch((error) => { 
-                    if (error instanceof AbortError) {
-                        setResult(row, "Aborted");
-                    }
-                    else { 
-                        setResult(row, error); alert("rejected"); 
-                    } 
+            try {
+                let response = await fetch("@Model._GetRequiredEndpoint", {
+                    method: "POST",
+                    headers: {
+                        "Content-type": "application/json;charset=utf-8"
+                    },
+                    signal: abort_controller.signal,
+                    body: JSON.stringify(request)
                 });
+                if (response.status == 200) {
+                    let result = await response.json();
+                    let outcome = result.runnerStatus;
+                    if (outcome.toLowerCase() == "stalled" || outcome.toLowerCase() =="progressed") outcome="Fired"
+                    setResult(row, outcome); 
+                }
+                else setResult(row, mapCodes.get(response.status) ?? response.status);
+            }
+            catch (error) {
+                if (error instanceof AbortError) {
+                    setResult(row, "Canceled");
+                }
+                else {
+                    setResult(row, error); 
+                }
+            }
         }
 
         function cancelTriggerWait(row) {
@@ -198,6 +211,7 @@
         function reset(row) {
             if (runnerAvailable) {
                 row.context.state = 0;
+                adjustAThresholdPrompt(row);
                 row.querySelector(".state").innerText = "Ready";
                 row.querySelector(".action").removeAttribute("disabled");
                 row.querySelector(".threshold").removeAttribute("disabled");
@@ -216,9 +230,22 @@
             }
         }
 
+        function adjustAThresholdPrompt(row) {
+            assureRowContext(row);
+            if(row.context.state==0) {
+                let thresholdInput = row.querySelector(".threshold");
+                let threshold = +thresholdInput.value;
+                if (threshold <= change_count) row.querySelector(".threshold").value = change_count + 1;
+            }
+        }
+
+        function ajustThresholdPrompts() {
+            for (let row of triggers.querySelectorAll("tr")) adjustAThresholdPrompt(row);
+        }
+
         function makeRunnerUnavailable() {
             runnerAvailable = false;
-            for (row of triggers.querySelectorAll("tr")) {
+            for (let row of triggers.querySelectorAll("tr")) {
                 assureRowContext(row);
                 if (row.context.state == 1) cancelTriggerWait(row);
                 if (row.context.state == 0) reset(row);
