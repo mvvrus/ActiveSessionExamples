@@ -102,13 +102,13 @@ namespace SampleApplication.APIControllers
         }
 
         [HttpPost("[action]")]
-        public ActionResult<ObserveAvailableResponse> GetAvailableObserve(ObserveAvailableRequest Request)
+        public ActionResult<ObserveResponse> GetAvailableObserve(ObserveRequest Request)
         {
             IActiveSession session = HttpContext.GetActiveSession();
             if(session.IsAvailable && Request.RunnerKey.IsForSession(session)) {
                 IRunner<Int32>? runner = session.GetRunner<Int32>(Request.RunnerKey.RunnerNumber, HttpContext);
                 if(runner!=null) {
-                    ObserveAvailableResponse response = new ObserveAvailableResponse();
+                    ObserveResponse response = new ObserveResponse();
                     response.backgroundProgress=runner.GetProgress().Progress;
                     response.isBackgroundExecutionCompleted=runner.IsBackgroundExecutionCompleted;
                     RunnerStatus runner_status;
@@ -122,16 +122,15 @@ namespace SampleApplication.APIControllers
         }
 
         [HttpPost("[action]")]
-        public async Task<ActionResult<ObserveAvailableResponse>> GetRequiredObserveAsync(ObserveRequiredRequest Request)
+        public async Task<ActionResult<ObserveResponse>> GetRequiredObserveAsync(ObserveRequiredRequest Request)
         {
             IActiveSession session = HttpContext.GetActiveSession();
             if(session.IsAvailable && Request.RunnerKey.IsForSession(session)) {
                 IRunner<Int32>? runner = session.GetRunner<Int32>(Request.RunnerKey.RunnerNumber, HttpContext);
                 if(runner!=null) {
-                    ObserveRequiredResponse response = new ObserveRequiredResponse();
+                    ObserveResponse response = new ObserveResponse();
                     response.backgroundProgress=runner.GetProgress().Progress;
                     response.isBackgroundExecutionCompleted=runner.IsBackgroundExecutionCompleted;
-                    response.Slot=Request.Slot;
                     RunnerStatus runner_status;
                     try {
                         CancellationTokenSource? effective_cts = null;

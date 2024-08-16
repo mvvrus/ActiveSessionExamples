@@ -2,7 +2,7 @@
 
 namespace SampleApplication.APIclasses
 {
-    public class ObserveAvailableRequest
+    public class ObserveRequest
     {
         public ExtRunnerKey RunnerKey { get; set; }
     }
