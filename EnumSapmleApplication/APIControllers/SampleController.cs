@@ -7,7 +7,7 @@ using SapmleApplication.Models;
 
 namespace SampleApplication.APIControllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     [ApiController]
     public class SampleController : ControllerBase
     {
