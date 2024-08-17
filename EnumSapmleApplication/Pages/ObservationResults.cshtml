@@ -3,9 +3,9 @@
 @model SampleApplication.Pages.ObservationResultsModel
 @{ 
     Layout = "_Layout";
-    ViewData["Title"]="Observation of sequence runners count";
+    ViewData["Title"]="Observation of a number of active enumeration adapters";
 }
-<h2 style="margin-bottom: 0.2rem;text-align:center">Session process runner example. Monitoring sequence runners.</h2>
+<h2 style="margin-bottom: 0.2rem;text-align:center">Session process runner example. Monitoring a number of active enumeration adapter runners.</h2>
 <div style="text-align:center;font-size: 1.1em;">
     <span class="annotation">Observing runner number:</span><span>@Model._key.RunnerNumber</span>
     <span class="annotation">Active Session:</span><span>@Model._key.ActiveSessionId:@Model._key.Generation</span>
@@ -16,18 +16,18 @@
 @if(Model._sessionAvailable) {
     <div style="display:flex">
         <div style="display:inline-block; min-width:25rem">
-            <h3>Results of polling observation .</h3>
+            <h3>Results of poll.</h3>
             <div>
-                <span style="margin-left: 10px; font-weight:600"># of active seq. runners:</span> <span id="runner_result">@Model._result</span>
+                <span style="margin-left: 10px; font-weight:600"># of active enum. adapters:</span> <span id="runner_result">@Model._result</span>
                 <span style="margin-left: 10px; font-weight:600"># of changes:</span> <span id="position">@(Model._position-1)</span>
             </div>
             <div>
                 <span style="margin-left: 10px; font-weight:600">Last poll #:</span> <span id="poll_count">0</span>
-                <span style="margin-left: 10px; font-weight:600">Last observed runner status:</span> <span id="runner_status">@Model._status</span>
+                <span style="margin-left: 10px; font-weight:600">Last observation runner status:</span> <span id="runner_status">@Model._status</span>
             </div>
         </div>
         <div style="display:inline-block;">
-            <h3>Triggers.</h3>
+            <h3>Triggers for monitoring changes.</h3>
             <table>
                 <thead>
                     <tr><th class="n">#</th><th class="threshold">Fires at</th><th class="state">State</th>

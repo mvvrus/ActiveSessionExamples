@@ -9,7 +9,7 @@
     Int32 bind_count = (Math.Max(Model.Input?.Stages?.Count ?? 1, 1));
 }
 <div>
-    <h2 style="margin-bottom:1px;text-align:center">Enter parameters for running sequence runner example (mode: @Model.Mode).</h2>
+    <h2 style="margin-bottom:1px;text-align:center">Enter parameters for running enumeration adapter runner example (mode: @Model.Mode).</h2>
     <form asp-page="/SequenceAdapterParams" asp-route-mode="@Model.Mode" style="padding-left:10px; width:max-content">
         <div style="margin-top: 1em;">
             <div style="min-width:11.5em; height:1.4em; display:inline-block"><label asp-for="Input!.StartCount" style="font-size:1.1em;font-weight:600"></label></div>

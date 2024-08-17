@@ -4,9 +4,9 @@
 @model SapmleApplication.Pages.SequenceShowResultsModel
 @{
     Layout = "_Layout";
-    ViewData["Title"]="Sequence runner results";
+    ViewData["Title"]="Enumeration adapter runner results";
 }
-<h2 style="margin-bottom: 0.2rem;text-align:center">Sequence runner example. Parameters and results</h2>
+<h2 style="margin-bottom: 0.2rem;text-align:center">Enumeration adapter runner example. Parameters and results</h2>
 <div style="text-align:center;font-size: 1.1em;">
     <span class="annotation">Runner number:</span><span>@Model._key.RunnerNumber</span>
     <span class="annotation">Active Session:</span><span>@Model._key.ActiveSessionId:@Model._key.Generation</span>
@@ -56,7 +56,7 @@
                 <tbody id="results_table">
                     @for(int row = 0; row<Model._position; row++) {
                         <tr>
-                            <td class="records number">@Model._results[row].Number</td>
+                            <td class="records number">@(Model._results[row].Number+1)</td>
                             <td class="records name">@Model._results[row].Name</td>
                             <td class="records data">@Model._results[row].Data</td>
                         </tr>
@@ -112,7 +112,7 @@
                 bkg_completed.innerText = result.isBackgroundExecutionCompleted;
                 for (item of result.result) {
                     let new_row = results_table.lastElementChild.cloneNode(true);
-                    new_row.children[0].innerText = item.number;
+                    new_row.children[0].innerText = item.number+1;
                     new_row.children[1].innerText = item.name;
                     new_row.children[2].innerText = item.data;
                     results_table.append(new_row);
