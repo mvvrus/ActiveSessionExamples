@@ -179,7 +179,7 @@
                 if (response.status == 200) {
                     let result = await response.json();
                     let outcome = result.runnerStatus;
-                    if (outcome.toLowerCase() == "stalled" || outcome.toLowerCase() =="progressed") outcome="Fired"
+                    if (outcome.toLowerCase() == "stalled" || outcome.toLowerCase() =="progressed") outcome="Fired(active:"+result.result+")"
                     setResult(row, outcome); 
                 }
                 else setResult(row, mapCodes.get(response.status) ?? response.status);
