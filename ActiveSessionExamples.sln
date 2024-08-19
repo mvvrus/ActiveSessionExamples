@@ -7,6 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProbeApp", "ProbeApp\ProbeA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleApplication", "SampleApplcation\SampleApplication.csproj", "{A8B2B8C2-B567-4A56-A6E8-482E26453022}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F28BE4C5-2531-43C5-BA2C-63EB0B4C3423}"
+	ProjectSection(SolutionItems) = preProject
+		Readme.rus.md = Readme.rus.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
