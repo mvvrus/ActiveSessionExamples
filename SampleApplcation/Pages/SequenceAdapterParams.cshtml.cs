@@ -45,26 +45,28 @@ namespace SapmleApplication.Pages
         {
             if(ModelState.IsValid) {
                 SequenceParams seq_params=MakeSequenceParams();
-                ExtRunnerKey key;
                 IRunner runner;
                 int runner_number;
                 IActiveSession session= HttpContext.GetActiveSession();
-                switch(Mode) {
-                    case SequenceParams.SyncMode.sync:
-                        IEnumerable<SimSeqData> sync_source = new SyncDelayedEnumerble<SimSeqData>(seq_params.Stages, new SimSeqDataProducer().Sample);
-                        (runner, runner_number)= session.CreateSequenceRunner(sync_source, HttpContext);
-                        break;
-                    case SequenceParams.SyncMode.async:
-                        IAsyncEnumerable<SimSeqData> async_source = new AsyncDelayedEnumerble<SimSeqData>(seq_params.Stages, new SimSeqDataProducer().Sample);
-                        (runner, runner_number) = session.CreateSequenceRunner(async_source, HttpContext);
-                        break;
-                    default:
-                        return StatusCode(400);
+                if(session.IsAvailable) {
+                    switch(Mode) {
+                        case SequenceParams.SyncMode.sync:
+                            IEnumerable<SimSeqData> sync_source = new SyncDelayedEnumerble<SimSeqData>(seq_params.Stages, new SimSeqDataProducer().Sample);
+                            (runner, runner_number)= session.CreateSequenceRunner(sync_source, HttpContext);
+                            break;
+                        case SequenceParams.SyncMode.async:
+                            IAsyncEnumerable<SimSeqData> async_source = new AsyncDelayedEnumerble<SimSeqData>(seq_params.Stages, new SimSeqDataProducer().Sample);
+                            (runner, runner_number) = session.CreateSequenceRunner(async_source, HttpContext);
+                            break;
+                        default:
+                            return StatusCode(StatusCodes.Status400BadRequest);
+                    }
+                    session.GetRegistry().RegisterRunner(runner);
+                    ExtRunnerKey key = (session, runner_number);
+                    runner.ExtraData=seq_params;
+                    return RedirectToPage("SequenceShowResults", new { key });
                 }
-                session.GetRegistry().RegisterRunner(runner);
-                key=(session, runner_number);
-                runner.ExtraData=seq_params;
-                return RedirectToPage("SequenceShowResults", new { key });
+                else return StatusCode(StatusCodes.Status500InternalServerError);
             }
             return Page();
         }

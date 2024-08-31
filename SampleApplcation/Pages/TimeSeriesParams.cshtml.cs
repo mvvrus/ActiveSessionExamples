@@ -27,11 +27,14 @@ namespace SampleApplication.Pages
                 IRunner runner;
                 int runner_number;
                 IActiveSession session = HttpContext.GetActiveSession();
-                RunnerRegistry registry = session.GetRegistry();
-                (runner, runner_number)= session.CreateTimeSeriesRunner(() => registry.Count, TimeSpan.FromSeconds(Interval), HttpContext);
-                runner.ExtraData=Interval;
-                key=(session, runner_number);
-                return RedirectToPage("TimeSeriesResults", new { key });
+                if(session.IsAvailable) {
+                    RunnerRegistry registry = session.GetRegistry();
+                    (runner, runner_number)= session.CreateTimeSeriesRunner(() => registry.Count, TimeSpan.FromSeconds(Interval), HttpContext);
+                    runner.ExtraData=Interval;
+                    key=(session, runner_number);
+                    return RedirectToPage("TimeSeriesResults", new { key });
+                }
+                else return StatusCode(StatusCodes.Status500InternalServerError);
             }
             else return Page();
         }

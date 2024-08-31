@@ -51,8 +51,11 @@ namespace SampleApplication.APIControllers
         public IActionResult TerminateSession()
         {
             IActiveSession session = HttpContext.GetActiveSession();
-            session.Terminate(HttpContext);
-            return StatusCode(StatusCodes.Status204NoContent);
+            if(session.IsAvailable) {
+                session.Terminate(HttpContext);
+                return StatusCode(StatusCodes.Status204NoContent);
+            }
+            else return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
         [HttpPost("[action]")]
@@ -144,7 +147,6 @@ namespace SampleApplication.APIControllers
                         }
                         catch (OperationCanceledException) {
                             return StatusCode(StatusCodes.Status204NoContent);
-//                            return StatusCode(StatusCodes.Status408RequestTimeout);
                         }
                         finally {
                             effective_cts?.Dispose();
