@@ -19,7 +19,7 @@ namespace SampleApplication.Sources
                         //Addition was successful
                         ActiveSession.CleanupCompletionTask.ContinueWith((_) => result.Dispose()); //Plan disposing the registry added after ebd of ActiveSession
                     else {
-                        //Somebody added rigistry already between checks
+                        //Somebody added registry already between checks
                         cached_result = ActiveSession.Properties[REGISTRY_NAME]; //Get previosly added registry
                         result.Dispose();
                         result=null; //Dispose and clear result

@@ -1,0 +1,79 @@
+﻿@page
+@model SampleApplication.Pages.ExclusiveParamsModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"]="Enter parameters";
+    Int32 bind_count = Model._stages.Count;
+}
+
+<div>
+    <h2 style="margin-bottom:1px;text-align:center">Parameters for running enumeration adapter runner (mode: async) for this example.</h2>
+    <form asp-page="/ExclusiveParams" style="padding-left:10px; width:max-content">
+        <div style="margin-top: 1em;">
+            <div style="min-width:11.5em; height:1.4em; display:inline-block">
+                <span style="font-size:1.1em;font-weight:600">Records to fetch at start:</span>
+            </div>
+            <span class="column">@Model._startCount</span>
+        </div>
+        <h3 style="margin-bottom:1px;">Polling paraneters:</h3>
+        <div style="margin-left:10px">
+            <div style="min-width:11.2em; height:1.4em; display:inline-block">
+                <span>Poll interval (sec):</span>
+            </div>
+            <span class="column"> @Model._pollInterval</span>
+            <br />
+            <div style="min-width:11.2em; height:1.4em; display:inline-block">
+                <span>Max records per poll:</span>
+            </div>
+            <span class="column">&lt;unlimited&gt;</span>
+        </div>
+        <h3 style="margin-top: 0.2em;margin-bottom:1px">Enumeration stages:</h3>
+        <div style="margin:5px; margin-left:10px; border-style:solid; border-width:thin; padding:2px">
+            @for(int row = 0; row<bind_count; row++) {
+                <div style="margin-top: 2px; margin-bottom: 2px;">
+                    @row:
+                    @if(row<bind_count-1) {
+                        <span>Count</span>
+                        <div class="column" style="display:inline-block">@Model._stages![row].Count</div>
+                    }
+                    else {
+                        <label asp-for="AsyncCount"></label>
+                        <input asp-for="AsyncCount" class="column" autofocus />
+                    }
+                    <span>Delay</span>
+                    <span class="column" > @((Int32)Model._stages![row].Delay.TotalSeconds) sec</span>
+                    @if(row==bind_count-1) {
+                        <span style="color:red" asp-validation-for="AsyncCount"></span>
+                    }
+                </div>
+            }
+        </div>
+
+        <div>
+            <button type="submit" onclick="submitted()">Submit</button>
+        </div>
+    </form>
+    <div id="waiting" style="margin:1em; font-weight:600" hidden>
+         Waiting for receiving an accessor .
+    </div>
+</div>
+@section Head{
+    <style>
+        .column {width:5rem; border:2px; padding:1px 2px}
+    </style>
+
+    <script>
+        function markWait() {
+            waiting.innerText = waiting.innerText + ' .';
+            setTimeout(()=>markWait(), 2000);
+        }
+
+        function submitted() {
+            document.head.querySelector("title").innerHTML = "Waiting for an accessor";
+            waiting.removeAttribute("hidden");
+            markWait();
+        }
+
+    </script>
+}
+

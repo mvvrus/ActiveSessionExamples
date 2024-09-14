@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MVVrus.AspNetCore.ActiveSession;
 using MVVrus.AspNetCore.ActiveSession.StdRunner;
+using SampleApplication.Sources;
 using SapmleApplication.Models;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,7 @@ builder.Services.AddSessionProcessRunner<Int32>();
 
 builder.Services.AddRazorPages().AddViewOptions(options => options.HtmlHelperOptions.FormInputRenderMode=FormInputRenderMode.AlwaysUseCurrentCulture);
 builder.Services.AddControllers();
+builder.Services.AddScoped<IExclusiveService, ExclusiveService>();
 
 WebApplication app = builder.Build();
 
