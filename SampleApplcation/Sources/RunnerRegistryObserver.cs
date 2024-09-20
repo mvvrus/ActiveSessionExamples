@@ -30,10 +30,13 @@ namespace SampleApplication.Sources
                 while(true) {
                     wait_source = Volatile.Read(in _currentWaitSource);
                     Int32 count = (await Task.WhenAny(wait_source.Task,completion_source.Task)).Result;
+                    //One can come here only if wait_source.Task is ran to completion,
+                    // because completion_source.Task never runs to completion, it can be completed via an OperationCanceledException only.
                     Callback(count, null);
                 }
             }
-            //Never returns any value
+            //One never come here to run this task to completion, as a loop above can be be terminated by a OperationCanceledException
+            //This exception will be intercepted by calling code as an expected one.
         }
 
         void RegistryChanged()
