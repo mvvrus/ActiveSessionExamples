@@ -1,5 +1,5 @@
 # ActiveSessions library usage examples. 
-This repository contains ActiveSession library usage examples ???Link
+This repository contains usage examples for [ActiveSessions library](https://github.com/mvvrus/ActiveSession).
 
 ## SampleApplication project
 The first project, SampleApplication, contains an example of configuring an application to use the ActiveSession library and examples of using standard runners. This project consists of four main examples examples, each demonstrating the use of the corresponding runner, and an additional example demonstrating mutually exclusive access to a service from the active session service container. These examples are loosely logically related. Links to each of the examples are on the application entry page.
