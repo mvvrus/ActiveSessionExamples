@@ -7,9 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="MVVrus.AspNetCore.ActiveSession">
-      <HintPath>..\..\ActiveSession\MVVrus.AspNetCore.ActiveSession\bin\Debug\net6.0\MVVrus.AspNetCore.ActiveSession.dll</HintPath>
-    </Reference>
+    <PackageReference Include="MVVrus.AspNetCore.ActiveSession" Version="0.9.3" />
   </ItemGroup>
 
 </Project>
