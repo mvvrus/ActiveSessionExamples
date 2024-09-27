@@ -37,7 +37,7 @@ namespace SapmleApplication.Pages
                 StartupStatusMessage="Active session is unavailable.";
             }
             else {
-                if(Key.Generation!=active_session.Generation || Key.ActiveSessionId!=active_session.Id) StartupStatusMessage="Active session was replaced.";
+                if(!Key.IsForSession(active_session)) StartupStatusMessage="Active session was replaced.";
                 else {
                     var runner = active_session.GetSequenceRunner<SimSeqData>(Key.RunnerNumber, HttpContext);
                     if(runner ==null) {
