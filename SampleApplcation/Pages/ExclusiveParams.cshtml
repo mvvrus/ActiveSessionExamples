@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "{suffix?}"
 @model SampleApplication.Pages.ExclusiveParamsModel
 @{
     Layout = "_Layout";
@@ -8,7 +8,7 @@
 
 <div>
     <h2 style="margin-bottom:1px;text-align:center">Parameters for running enumeration adapter runner (mode: async) for this example.</h2>
-    <form asp-page="/ExclusiveParams" style="padding-left:10px; width:max-content">
+    <form asp-route-suffix="@Model.Suffix" style="padding-left:10px; width:max-content">
         <div style="margin-top: 1em;">
             <div style="min-width:11.5em; height:1.4em; display:inline-block">
                 <span style="font-size:1.1em;font-weight:600">Records to fetch at start:</span>

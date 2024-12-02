@@ -19,11 +19,11 @@ namespace SampleApplication.Pages
         internal String? _AbortEndpoint;
         public String StartupStatusMessage { get; private set; } = "";
 
-        public void OnGet()
+        public void OnGet(String? Suffix)
         {
-            _GetAvailableEndpoint=Url.ActionLink("GetAvailableObserve", "Sample");
-            _GetRequiredEndpoint=Url.ActionLink("GetRequiredObserve", "Sample");
-            _AbortEndpoint=Url.ActionLink("Abort", "Sample");
+            _GetAvailableEndpoint=Url.ActionLink("GetAvailableObserve", "Sample", new { Suffix });
+            _GetRequiredEndpoint=Url.ActionLink("GetRequiredObserve", "Sample", new { Suffix });
+            _AbortEndpoint=Url.ActionLink("Abort", "Sample", new { Suffix });
             IActiveSession active_session = HttpContext.GetActiveSession();
             if(!active_session.IsAvailable) {
                 StartupStatusMessage="Active session is unavailable.";

@@ -1,4 +1,4 @@
-﻿@page
+﻿@page "{suffix?}"
 @model EnumSapmleApplication.Pages.IndexModel
 @{
     Layout = "_Layout";
@@ -10,12 +10,12 @@
 </div>
 <div>
     <ul>
-        <li><a asp-page="/SequenceAdapterParams" asp-route-mode="sync" target="_blank">EnumAdapter sample</a></li>
-        <li><a asp-page="/SequenceAdapterParams" asp-route-mode="async" target="_blank">AsyncEnumAdapter sample</a></li>
-        <li><a asp-page="/TimeSeriesParams" target="_blank">TimeSeriesRunner sample</a></li>
-        <li><a asp-page="/ObservationResults" target="_blank">SessionProcessRunner sample</a></li>
+        <li><a asp-page="/SequenceAdapterParams" asp-route-mode="sync" asp-route-suffix="@Model.Suffix" target="_blank">EnumAdapter sample</a></li>
+        <li><a asp-page="/SequenceAdapterParams" asp-route-mode="async" asp-route-suffix="@Model.Suffix" target="_blank">AsyncEnumAdapter sample</a></li>
+        <li><a asp-page="/TimeSeriesParams" asp-route-suffix="@Model.Suffix" target="_blank">TimeSeriesRunner sample</a></li>
+        <li><a asp-page="/ObservationResults" asp-route-suffix="@Model.Suffix" target="_blank">SessionProcessRunner sample</a></li>
         <li><hr /></li>
-        <li><a asp-page="/ExclusiveParams" target="_blank">Exclusive access to an active session service sample</a></li>
+        <li><a asp-page="/ExclusiveParams" asp-route-suffix="@Model.Suffix" target="_blank">Exclusive access to an active session service sample</a></li>
     </ul>
 </div>
 

@@ -15,9 +15,12 @@ namespace SampleApplication.Pages
         [Range(1,3600)]
         [BindProperty]
         public Int32 Interval { get; set; } = 10;
+        [BindProperty]
+        public String? Suffix { get; set; }
 
-        public void OnGet()
+        public void OnGet(String? Suffix)
         {
+            this.Suffix=Suffix;
         }
 
         public ActionResult OnPost() 
@@ -32,7 +35,7 @@ namespace SampleApplication.Pages
                     (runner, runner_number)= session.CreateTimeSeriesRunner(() => registry.Count, TimeSpan.FromSeconds(Interval), HttpContext);
                     runner.ExtraData=Interval;
                     key=(session, runner_number);
-                    return RedirectToPage("TimeSeriesResults", new { key });
+                    return RedirectToPage("TimeSeriesResults", new { key, Suffix });
                 }
                 else return StatusCode(StatusCodes.Status500InternalServerError);
             }

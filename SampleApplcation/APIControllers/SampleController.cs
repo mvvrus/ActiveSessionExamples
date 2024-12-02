@@ -11,7 +11,7 @@ namespace SampleApplication.APIControllers
     [ApiController]
     public class SampleController : ControllerBase
     {
-        [HttpPost("[action]")]
+        [HttpPost("[action]/{suffix?}")]
         public ActionResult<SampleSequenceResponse> GetAvailable(GetAvailableRequest Request)
         {
             IActiveSession session = HttpContext.GetActiveSession();
@@ -31,7 +31,7 @@ namespace SampleApplication.APIControllers
             return StatusCode(StatusCodes.Status410Gone);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost("[action]/{suffix?}")]
         public ActionResult<AbortResponse> Abort(AbortRequest Request)
         {
             IActiveSession session = HttpContext.GetActiveSession();
@@ -47,7 +47,7 @@ namespace SampleApplication.APIControllers
             return StatusCode(StatusCodes.Status410Gone);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost("[action]/{suffix?}")]
         public IActionResult TerminateSession()
         {
             IActiveSession session = HttpContext.GetActiveSession();
@@ -58,7 +58,7 @@ namespace SampleApplication.APIControllers
             else return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost("[action]/{suffix?}")]
         public async Task<ActionResult<TimeSeriesRecordResponse>> GetTimeSeriesRecordAsync(TimeSeriesRecordRequest Request)
         {
             IActiveSession session = HttpContext.GetActiveSession();
@@ -81,7 +81,7 @@ namespace SampleApplication.APIControllers
             return StatusCode(StatusCodes.Status410Gone);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost("[action]/{suffix?}")]
         public ActionResult<TimeSeriesRecordResponse> GetTimeSeriesAvailRecords(TimeSeriesRecordRequest Request)
         {
             IActiveSession session = HttpContext.GetActiveSession();
@@ -104,7 +104,7 @@ namespace SampleApplication.APIControllers
             return StatusCode(StatusCodes.Status410Gone);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost("[action]/{suffix?}")]
         public ActionResult<ObserveResponse> GetAvailableObserve(ObserveRequest Request)
         {
             IActiveSession session = HttpContext.GetActiveSession();
@@ -124,7 +124,7 @@ namespace SampleApplication.APIControllers
             return StatusCode(StatusCodes.Status410Gone);
         }
 
-        [HttpPost("[action]")]
+        [HttpPost("[action]/{suffix?}")]
         public async Task<ActionResult<ObserveResponse>> GetRequiredObserveAsync(ObserveRequiredRequest Request)
         {
             IActiveSession session = HttpContext.GetActiveSession();

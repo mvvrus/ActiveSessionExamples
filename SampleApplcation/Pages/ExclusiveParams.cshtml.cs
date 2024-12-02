@@ -20,6 +20,8 @@ namespace SampleApplication.Pages
         [Range(1,Int32.MaxValue)]
         [DisplayName("Count")]
         public Int32? AsyncCount { get; set; }  = 20;
+        [BindProperty]
+        public String? Suffix { get; set; }
 
         readonly ISessionServiceLock<IExclusiveService> _sessionServiceLock;
 
@@ -33,8 +35,9 @@ namespace SampleApplication.Pages
             _sessionServiceLock=SessionServiceLock;
         }
 
-        public void OnGet()
+        public void OnGet(String? Suffix)
         {
+            this.Suffix=Suffix;
         }
 
         public async Task<ActionResult> OnPostAsync() 
@@ -61,7 +64,7 @@ namespace SampleApplication.Pages
                     session.GetRegistry().RegisterRunner(runner);
                     ExtRunnerKey key = (session, runner_number);
                     runner.ExtraData=seq_params;
-                    return RedirectToPage("SequenceShowResults", new { key });
+                    return RedirectToPage("SequenceShowResults", new { key, Suffix });
                 }
                 else return StatusCode(StatusCodes.Status500InternalServerError);
             }

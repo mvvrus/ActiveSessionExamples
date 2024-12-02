@@ -27,10 +27,10 @@ namespace SapmleApplication.Pages
         public String StartupStatusMessage { get; private set; } = "";
         
 
-        public async Task OnGetAsync([ModelBinder<ExtRunnerKeyMvcModelBinder>]ExtRunnerKey Key)
+        public async Task OnGetAsync([ModelBinder<ExtRunnerKeyMvcModelBinder>]ExtRunnerKey Key, String? Suffix)
         {
-            _GetAvailableEndpoint=Url.ActionLink("GetAvailable","Sample");
-            _AbortEndpoint=Url.ActionLink("Abort", "Sample");
+            _GetAvailableEndpoint=Url.ActionLink("GetAvailable", "Sample", new { Suffix});
+            _AbortEndpoint=Url.ActionLink("Abort", "Sample", new { Suffix });
             _key=Key;
             IActiveSession active_session = HttpContext.GetActiveSession();
             if(!active_session.IsAvailable) {

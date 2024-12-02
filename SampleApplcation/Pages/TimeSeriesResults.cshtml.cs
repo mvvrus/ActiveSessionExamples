@@ -23,11 +23,11 @@ namespace SampleApplication.Pages
 
         public String StartupStatusMessage { get; private set; } = "";
 
-        public async Task OnGetAsync([ModelBinder<ExtRunnerKeyMvcModelBinder>] ExtRunnerKey Key)
+        public async Task OnGetAsync([ModelBinder<ExtRunnerKeyMvcModelBinder>] ExtRunnerKey Key, String? Suffix)
         {
-            _AbortEndpoint=Url.ActionLink("Abort", "Sample");
-            _GetTimeSeriesRecordEndpoint=Url.ActionLink("GetTimeSeriesRecord", "Sample");
-            _GetTimeSeriesAvailRecordsEndpoint=Url.ActionLink("GetTimeSeriesAvailRecords", "Sample");
+            _AbortEndpoint=Url.ActionLink("Abort", "Sample", new { Suffix });
+            _GetTimeSeriesRecordEndpoint=Url.ActionLink("GetTimeSeriesRecord", "Sample", new { Suffix });
+            _GetTimeSeriesAvailRecordsEndpoint=Url.ActionLink("GetTimeSeriesAvailRecords", "Sample", new { Suffix });
             _key=Key;
             IActiveSession active_session = HttpContext.GetActiveSession();
             if(!active_session.IsAvailable) {

@@ -8,9 +8,12 @@ namespace EnumSapmleApplication.Pages
     {
         internal String? _terminateSessionEndpoint;
         internal IActiveSession? _activeSession;
-        public void OnGet()
+        public String? Suffix { get; private set; }
+
+        public void OnGet(String? Suffix)
         {
-            _terminateSessionEndpoint=Url.ActionLink("TerminateSession", "Sample");
+            this.Suffix= Suffix;
+            _terminateSessionEndpoint=Url.ActionLink("TerminateSession", "Sample", new { Suffix });
             _activeSession=HttpContext.GetActiveSession();
         }
     }

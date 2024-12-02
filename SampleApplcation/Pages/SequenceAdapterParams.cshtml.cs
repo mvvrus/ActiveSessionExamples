@@ -23,6 +23,8 @@ namespace SapmleApplication.Pages
         [BindProperty]
         [BindRequired]
         public SequenceParams.SyncMode Mode { get; set; }
+        [BindProperty]
+        public String? Suffix { get; set; }
 
         public readonly List<SelectListItem> Units = new List<SelectListItem>
         {
@@ -36,9 +38,10 @@ namespace SapmleApplication.Pages
             Input.Stages=new List<BindStage> { new BindStage { Delay=0, Scale=1000 } };
         }
 
-        public void OnGet(SequenceParams.SyncMode mode)
+        public void OnGet(SequenceParams.SyncMode mode, String? Suffix)
         {
             Mode=mode;
+            this.Suffix= Suffix;
         }
 
         public ActionResult OnPost() 
@@ -64,7 +67,7 @@ namespace SapmleApplication.Pages
                     session.GetRegistry().RegisterRunner(runner);
                     ExtRunnerKey key = (session, runner_number);
                     runner.ExtraData=seq_params;
-                    return RedirectToPage("SequenceShowResults", new { key });
+                    return RedirectToPage("SequenceShowResults", new { key, Suffix });
                 }
                 else return StatusCode(StatusCodes.Status500InternalServerError);
             }
