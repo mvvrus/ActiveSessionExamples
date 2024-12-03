@@ -1,0 +1,16 @@
+﻿@page 
+@model SampleApplication.Pages.SetSuffixModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"]="Enter suffix";
+}
+
+<div>
+    <h2 style="text-align:center">Enter suffix (letters and digits only).</h2>
+    <form asp-route-suffix="@Model.Suffix" style="padding-left:10px; width:max-content">
+        <div><label asp-for="Suffix" style="font-weight:600"></label>: <input asp-for="Suffix" style="width:3em" /> <span style="color:red" asp-validation-for="Suffix"></span> </div>
+        <div>
+            <button type="submit" style="margin:1em">Submit</button>
+        </div>
+    </form>
+</div>

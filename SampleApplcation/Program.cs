@@ -22,7 +22,18 @@ WebApplication app = builder.Build();
 
 app.UseSession();
 app.UseActiveSessions();
+app.UseActiveSessions(CheckRoutingSuffix);
 app.MapRazorPages();
 app.MapControllers();
 
 app.Run();
+
+const String SUFFIX = "suffix";
+(Boolean InScope,String? Suffix) CheckRoutingSuffix(HttpContext Context)
+{
+    RouteValueDictionary? route_values = Context.GetRouteData().Values;
+    if(route_values is not null && route_values.ContainsKey(SUFFIX)) {
+        return (true, (route_values[SUFFIX] as String)?.ToLower());
+    }
+    else return (false, null);
+}
