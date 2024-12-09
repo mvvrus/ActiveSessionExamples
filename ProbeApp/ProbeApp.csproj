@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MVVrus.AspNetCore.ActiveSession" Version="1.0.1" />
+    <PackageReference Include="MVVrus.AspNetCore.ActiveSession" Version="1.1.1" />
   </ItemGroup>
 
 </Project>
