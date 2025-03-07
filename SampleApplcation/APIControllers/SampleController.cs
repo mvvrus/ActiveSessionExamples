@@ -48,10 +48,11 @@ namespace SampleApplication.APIControllers
         }
 
         [HttpPost("[action]/{suffix?}")]
-        public IActionResult TerminateSession()
+        public IActionResult TerminateSession(TerminateSessionRequest? Request)
         {
             IActiveSession session = HttpContext.GetActiveSession();
             if(session.IsAvailable) {
+                if(Request?.Id!=session.Id) return StatusCode(StatusCodes.Status403Forbidden);
                 session.Terminate(HttpContext);
                 return StatusCode(StatusCodes.Status204NoContent);
             }

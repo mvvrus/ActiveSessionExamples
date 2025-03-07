@@ -28,7 +28,7 @@
 
     <script>
         async function newSession() {
-            let request = {};
+            let request = { Id: "@Model._activeSession!.Id" };
             let response = await fetch("@Model._terminateSessionEndpoint", {
                 method: "POST",
                 headers: {
